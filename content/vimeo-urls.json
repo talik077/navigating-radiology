@@ -491,6 +491,11 @@
   },
   {
     "courseSlug": "brain-mri",
+    "caseId": "83784",
+    "videoUrl": "https://player.vimeo.com/video/1144370616?h=53bf9d3a7b"
+  },
+  {
+    "courseSlug": "brain-mri",
     "caseId": "20115",
     "videoUrl": "https://player.vimeo.com/video/1092560108?h=c8120ee59a"
   },
@@ -531,8 +536,38 @@
   },
   {
     "courseSlug": "brain-mri",
+    "caseId": "22182",
+    "videoUrl": "https://player.vimeo.com/video/1144370765?h=45d20d47ec"
+  },
+  {
+    "courseSlug": "brain-mri",
     "caseId": "93385",
     "videoUrl": "https://player.vimeo.com/video/1092560126?h=ebbfd743d7"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "85832",
+    "videoUrl": "https://player.vimeo.com/video/1144371103?h=0d8cc8617c"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "29693",
+    "videoUrl": "https://player.vimeo.com/video/1144370898?h=26ddb5776a"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "92713",
+    "videoUrl": "https://player.vimeo.com/video/1144370827?h=2c3e0a835d"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "74671",
+    "videoUrl": "https://player.vimeo.com/video/1144370495?h=d4ba664f38"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "21721",
+    "videoUrl": "https://player.vimeo.com/video/1144371161?h=9abb8f2399"
   },
   {
     "courseSlug": "brain-mri",
@@ -543,6 +578,26 @@
     "courseSlug": "brain-mri",
     "caseId": "38069",
     "videoUrl": "https://player.vimeo.com/video/1096008197?h=1f7af81736"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "37835",
+    "videoUrl": "https://player.vimeo.com/video/1144370940?h=e04eeac1d4"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "37382",
+    "videoUrl": "https://player.vimeo.com/video/1144370699?h=7f81c9a86d"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "03783",
+    "videoUrl": "https://player.vimeo.com/video/1144370665?h=f547510a79"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "50888",
+    "videoUrl": "https://player.vimeo.com/video/1144370572?h=97b64a265c"
   },
   {
     "courseSlug": "brain-mri",
@@ -581,7 +636,17 @@
   },
   {
     "courseSlug": "brain-mri",
+    "caseId": "23320",
+    "videoUrl": "https://player.vimeo.com/video/1144370428?h=8f288adddb"
+  },
+  {
+    "courseSlug": "brain-mri",
     "caseId": "24360",
     "videoUrl": "https://player.vimeo.com/video/1096008250?h=ed733e0fba"
+  },
+  {
+    "courseSlug": "brain-mri",
+    "caseId": "73602",
+    "videoUrl": "https://player.vimeo.com/video/1144370795?h=e09aa2f68d"
   }
 ]
