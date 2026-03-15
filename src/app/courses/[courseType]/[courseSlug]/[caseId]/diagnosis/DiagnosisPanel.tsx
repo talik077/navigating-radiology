@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Accordion, AccordionItem, Button } from "@heroui/react";
+import DOMPurify from "isomorphic-dompurify";
 import type { TeachingSection } from "@/lib/types";
 import { useViewer } from "@/components/viewer/ViewerContext";
 
@@ -16,6 +17,18 @@ export default function DiagnosisPanel({
   const allKeys = new Set(teachingSections.map((_, i) => String(i)));
   const allExpanded = selectedKeys.size === teachingSections.length;
   const viewerCtx = useViewer();
+
+  const sanitizedSections = useMemo(
+    () =>
+      teachingSections.map((s) => ({
+        ...s,
+        html: DOMPurify.sanitize(s.html, {
+          ADD_TAGS: ["iframe"],
+          ADD_ATTR: ["allowfullscreen", "frameborder", "target"],
+        }),
+      })),
+    [teachingSections]
+  );
 
   const toggleAll = () => {
     setSelectedKeys(allExpanded ? new Set<string>() : allKeys);
@@ -104,7 +117,7 @@ export default function DiagnosisPanel({
             trigger: "py-3",
           }}
         >
-          {teachingSections.map((section, i) => (
+          {sanitizedSections.map((section, i) => (
             <AccordionItem key={String(i)} title={section.name}>
               <div
                 className="teaching-content text-sm leading-relaxed"

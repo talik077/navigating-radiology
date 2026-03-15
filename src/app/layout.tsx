@@ -17,8 +17,20 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Navigating Radiology",
-  description: "Master radiology with expert-led, case-based courses",
+  title: {
+    default: "Navigating Radiology",
+    template: "%s | Navigating Radiology",
+  },
+  description:
+    "Master radiology with expert-led, case-based courses featuring scrollable DICOM cases, expert walkthroughs, and teaching videos.",
+  metadataBase: new URL("https://navigatingradiology.com"),
+  openGraph: {
+    title: "Navigating Radiology",
+    description:
+      "Case-based radiology education with scrollable DICOM viewers and expert walkthroughs.",
+    siteName: "Navigating Radiology",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
