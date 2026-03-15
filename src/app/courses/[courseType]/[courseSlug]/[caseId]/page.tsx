@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { getCaseData, getCourseData, getAdjacentCases, getAllCaseParams, toStudySummary } from "@/lib/data";
+import {
+  getCaseData,
+  getCourseData,
+  getAdjacentCases,
+  getAllCaseParams,
+  toStudySummary,
+} from "@/lib/data";
 import { notFound } from "next/navigation";
 import DicomViewer from "@/components/viewer/DicomViewer";
 
@@ -29,53 +35,86 @@ export default async function CaseHistoryPage({
   const caseData = getCaseData(courseSlug, caseId);
   if (!caseData || !course) notFound();
 
-  const { prev, next } = getAdjacentCases(courseSlug, caseId);
+  const { next } = getAdjacentCases(courseSlug, caseId);
   const basePath = `/courses/${courseType}/${courseSlug}`;
   const studySummary = toStudySummary(caseData);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between">
-        <Link href={basePath} className="text-sm text-muted hover:text-accent">
-          &larr; {course.courseName}
-        </Link>
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+      {/* Top bar */}
+      <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
+        <div className="flex items-center gap-4">
+          <Link
+            href={basePath}
+            className="flex items-center gap-1 rounded-md bg-surface-hover px-3 py-1.5 text-sm text-muted transition-colors hover:text-foreground"
+          >
+            &#9776; Cases
+          </Link>
+          <h1 className="text-lg font-bold">{course.courseName}</h1>
+        </div>
+      </div>
+
+      {/* Case heading bar */}
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <h2 className="text-lg font-semibold">
+          Case {caseData.caseNumber} - Hx:{" "}
+          {caseData.clinicalHistory || "N/A"}
+        </h2>
         <Link
           href={`${basePath}/${caseId}/diagnosis`}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-accent-hover"
+          className="rounded-lg bg-warning px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-warning/80"
         >
-          View Diagnosis &rarr;
+          Next: Case {caseData.caseNumber} Answer
         </Link>
       </div>
 
-      <h1 className="mb-4 text-xl font-bold">
-        Case {caseData.caseNumber}
-        {caseData.difficulty && (
-          <span className="ml-3 text-sm font-normal text-muted">{caseData.difficulty}</span>
-        )}
-      </h1>
+      {/* Main content: viewer left, clinical history right */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Viewer - takes ~70% */}
+        <div className="flex-1 bg-black">
+          <DicomViewer
+            study={studySummary}
+            courseSlug={courseSlug}
+            caseId={caseId}
+          />
+        </div>
 
-      <div className="mb-6 overflow-hidden rounded-lg border border-border bg-black" style={{ height: "70vh" }}>
-        <DicomViewer study={studySummary} courseSlug={courseSlug} caseId={caseId} />
-      </div>
+        {/* Right panel - clinical history */}
+        <div className="w-80 flex-shrink-0 overflow-y-auto border-l border-border bg-surface p-6">
+          <h3 className="mb-4 text-lg font-semibold">Clinical History</h3>
+          <p className="leading-relaxed text-muted">
+            {caseData.clinicalHistory || "No clinical history provided."}
+          </p>
 
-      <div className="rounded-lg border border-border bg-surface p-6">
-        <h2 className="mb-3 text-lg font-semibold">Clinical History</h2>
-        <p className="leading-relaxed text-muted">
-          {caseData.clinicalHistory || "No clinical history provided."}
-        </p>
-      </div>
+          {caseData.difficulty && (
+            <div className="mt-6">
+              <span className="text-sm text-muted">Difficulty: </span>
+              <span
+                className={`text-sm font-medium ${
+                  caseData.difficulty === "Bread & Butter"
+                    ? "text-success"
+                    : caseData.difficulty === "Moderate"
+                      ? "text-warning"
+                      : "text-danger"
+                }`}
+              >
+                {caseData.difficulty}
+              </span>
+            </div>
+          )}
 
-      <div className="mt-6 flex justify-between">
-        {prev ? (
-          <Link href={`${basePath}/${prev.caseId}`} className="text-sm text-muted hover:text-accent">
-            &larr; Case {prev.caseNumber}
-          </Link>
-        ) : <div />}
-        {next ? (
-          <Link href={`${basePath}/${next.caseId}`} className="text-sm text-muted hover:text-accent">
-            Case {next.caseNumber} &rarr;
-          </Link>
-        ) : <div />}
+          {/* Navigation */}
+          <div className="mt-8 border-t border-border pt-4">
+            {next && (
+              <Link
+                href={`${basePath}/${next.caseId}`}
+                className="block text-sm text-muted hover:text-accent"
+              >
+                Next: Case {next.caseNumber} &rarr;
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -28,6 +28,25 @@ const coursesRaw = JSON.parse(
   fs.readFileSync(path.join(CONTENT, "courses/all_courses_extracted.json"), "utf-8")
 );
 
+// Load YouTube intro videos (extracted from original site via browser)
+const youtubeIntrosPath = path.join(CONTENT, "youtube-intros.json");
+const youtubeByCourse: Record<string, { title: string; youtubeId: string }[]> = fs.existsSync(youtubeIntrosPath)
+  ? JSON.parse(fs.readFileSync(youtubeIntrosPath, "utf-8"))
+  : {};
+console.log(`Loaded YouTube intros for ${Object.keys(youtubeByCourse).length} courses`);
+
+// Load Vimeo video URLs if extraction file exists
+const vimeoPath = path.join(CONTENT, "vimeo-urls.json");
+const vimeoByCase: Record<string, string> = {};
+if (fs.existsSync(vimeoPath)) {
+  const vimeoData: { courseSlug: string; caseId: string; videoUrl: string }[] =
+    JSON.parse(fs.readFileSync(vimeoPath, "utf-8"));
+  for (const v of vimeoData) {
+    vimeoByCase[`${v.courseSlug}_${v.caseId}`] = v.videoUrl;
+  }
+  console.log(`Loaded ${Object.keys(vimeoByCase).length} Vimeo URLs`);
+}
+
 // Load all case files and index by courseSlug
 const casesDir = path.join(CONTENT, "cases");
 const caseFiles = fs.readdirSync(casesDir).filter((f) => f.endsWith(".json"));
@@ -90,9 +109,13 @@ for (const course of coursesRaw) {
         })),
       }));
 
+      // Parse case number from diagnosisTitle ("Case 14 - Pregnancy loss" → 14)
+      const titleMatch = (c.diagnosisTitle || "").match(/^Case\s+(\d+)/i);
+      const parsedCaseNumber = titleMatch ? parseInt(titleMatch[1], 10) : 0;
+
       return {
         caseId: c.caseId,
-        caseNumber: meta.caseNumber || parseInt(c.caseId, 10) || 0,
+        caseNumber: parsedCaseNumber,
         clinicalHistory: meta.clinicalHistory || "",
         diagnosisTitle: c.diagnosisTitle || "",
         difficulty: meta.difficulty || undefined,
@@ -102,10 +125,13 @@ for (const course of coursesRaw) {
           series,
         },
         teachingSections: c.teachingSections || [],
-        videoUrl: c.videoUrl || undefined,
+        videoUrl: vimeoByCase[`${slug}_${c.caseId}`] || c.videoUrl || undefined,
       };
     })
     .sort((a: any, b: any) => a.caseNumber - b.caseNumber);
+
+  // Deduplicate sections
+  const dedupedSections = [...new Set(course.sections || [])];
 
   // Per-course output
   const courseOutput = {
@@ -114,8 +140,9 @@ for (const course of coursesRaw) {
     courseName: course.courseName,
     description: course.description || "",
     caseCount: mergedCases.length,
-    sections: course.sections || [],
+    sections: dedupedSections,
     introUrl: course.introUrl || undefined,
+    introVideos: youtubeByCourse[slug] || [],
     cases: mergedCases,
   };
 

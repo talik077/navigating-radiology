@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { getCaseData, getCourseData, getAdjacentCases, getAllCaseParams, toStudySummary } from "@/lib/data";
+import {
+  getCaseData,
+  getCourseData,
+  getAdjacentCases,
+  getAllCaseParams,
+  toStudySummary,
+} from "@/lib/data";
 import { notFound } from "next/navigation";
 import DicomViewer from "@/components/viewer/DicomViewer";
 import AccordionSection from "@/components/teaching/AccordionSection";
@@ -35,46 +41,73 @@ export default async function DiagnosisPage({
   const studySummary = toStudySummary(caseData);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-4">
-        <Link href={`${basePath}/${caseId}`} className="text-sm text-muted hover:text-accent">
-          &larr; Back to Case
-        </Link>
-      </div>
-
-      <h1 className="mb-6 text-2xl font-bold">{caseData.diagnosisTitle}</h1>
-
-      <div className="mb-6 overflow-hidden rounded-lg border border-border bg-black" style={{ height: "60vh" }}>
-        <DicomViewer study={studySummary} courseSlug={courseSlug} caseId={caseId} />
-      </div>
-
-      {caseData.videoUrl && (
-        <div className="mb-6 overflow-hidden rounded-lg border border-border">
-          <iframe
-            src={caseData.videoUrl}
-            className="aspect-video w-full"
-            allow="autoplay; fullscreen"
-            allowFullScreen
-          />
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+      {/* Top bar */}
+      <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
+        <div className="flex items-center gap-4">
+          <Link
+            href={basePath}
+            className="flex items-center gap-1 rounded-md bg-surface-hover px-3 py-1.5 text-sm text-muted transition-colors hover:text-foreground"
+          >
+            &#9776; Cases
+          </Link>
+          <h1 className="text-lg font-bold">{course.courseName}</h1>
         </div>
-      )}
-
-      <div className="space-y-4">
-        {caseData.teachingSections.map((section, i) => (
-          <AccordionSection key={i} name={section.name} html={section.html} defaultOpen={i === 0} />
-        ))}
       </div>
 
-      {next && (
-        <div className="mt-8 text-center">
+      {/* Case heading bar */}
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <h2 className="text-lg font-semibold">{caseData.diagnosisTitle}</h2>
+        {next && (
           <Link
             href={`${basePath}/${next.caseId}`}
-            className="inline-block rounded-lg bg-accent px-6 py-3 font-medium text-black transition-colors hover:bg-accent-hover"
+            className="rounded-lg bg-warning px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-warning/80"
           >
-            Next Case: {next.caseNumber} &rarr;
+            Next: Case {next.caseNumber}
           </Link>
+        )}
+      </div>
+
+      {/* Main content: viewer left, teaching right */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Viewer - takes ~70% */}
+        <div className="flex-1 bg-black">
+          <DicomViewer
+            study={studySummary}
+            courseSlug={courseSlug}
+            caseId={caseId}
+          />
         </div>
-      )}
+
+        {/* Right panel - teaching content */}
+        <div className="w-96 flex-shrink-0 overflow-y-auto border-l border-border bg-surface">
+          {/* Video embed */}
+          {caseData.videoUrl && (
+            <div className="border-b border-border">
+              <iframe
+                src={caseData.videoUrl}
+                className="aspect-video w-full"
+                allow="autoplay; fullscreen"
+                allowFullScreen
+              />
+            </div>
+          )}
+
+          {/* Teaching sections */}
+          <div className="p-4">
+            <div className="space-y-3">
+              {caseData.teachingSections.map((section, i) => (
+                <AccordionSection
+                  key={i}
+                  name={section.name}
+                  html={section.html}
+                  defaultOpen={i === 0}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
