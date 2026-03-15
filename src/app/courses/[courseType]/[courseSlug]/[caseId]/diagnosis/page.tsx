@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   getCaseData,
   getCourseData,
@@ -7,8 +6,7 @@ import {
   toStudySummary,
 } from "@/lib/data";
 import { notFound } from "next/navigation";
-import DicomViewer from "@/components/viewer/DicomViewer";
-import DiagnosisPanel from "./DiagnosisPanel";
+import DiagnosisContent from "./DiagnosisContent";
 
 export function generateStaticParams() {
   return getAllCaseParams();
@@ -37,54 +35,17 @@ export default async function DiagnosisPage({
   if (!caseData || !course) notFound();
 
   const { next } = getAdjacentCases(courseSlug, caseId);
-  const basePath = `/courses/${courseType}/${courseSlug}`;
   const studySummary = toStudySummary(caseData);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-2">
-        <div className="flex items-center gap-4">
-          <Link
-            href={basePath}
-            className="flex items-center gap-1 rounded-md bg-surface-hover px-3 py-1.5 text-sm text-muted transition-colors hover:text-foreground"
-          >
-            &#9776; Cases
-          </Link>
-          <h1 className="text-lg font-bold">{course.courseName}</h1>
-        </div>
-      </div>
-
-      {/* Case heading bar */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <h2 className="text-lg font-semibold">{caseData.diagnosisTitle}</h2>
-        {next && (
-          <Link
-            href={`${basePath}/${next.caseId}`}
-            className="rounded-lg bg-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
-          >
-            Next: Case {next.caseNumber}
-          </Link>
-        )}
-      </div>
-
-      {/* Main content: viewer left, teaching right */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Viewer */}
-        <div className="flex-1 bg-black">
-          <DicomViewer
-            study={studySummary}
-            courseSlug={courseSlug}
-            caseId={caseId}
-          />
-        </div>
-
-        {/* Right panel - teaching content */}
-        <DiagnosisPanel
-          videoUrl={caseData.videoUrl}
-          teachingSections={caseData.teachingSections}
-        />
-      </div>
-    </div>
+    <DiagnosisContent
+      courseName={course.courseName}
+      caseData={caseData}
+      studySummary={studySummary}
+      courseType={courseType}
+      courseSlug={courseSlug}
+      caseId={caseId}
+      next={next ? { caseId: next.caseId, caseNumber: next.caseNumber } : null}
+    />
   );
 }

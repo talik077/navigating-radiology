@@ -1,40 +1,16 @@
 @import "tailwindcss";
-
-:root {
-  --background: #0a0a0f;
-  --surface: #12121a;
-  --surface-hover: #1a1a28;
-  --border: #2a2a3a;
-  --foreground: #e4e4ef;
-  --muted: #8888a0;
-  --accent: #00aeef;
-  --accent-hover: #33c1f5;
-  --accent-dim: #00aeef20;
-  --danger: #ef4444;
-  --success: #22c55e;
-  --warning: #eab308;
-}
+@plugin "./hero.ts";
+@source "../../node_modules/@heroui/theme/dist/**/*.js";
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-surface: var(--surface);
-  --color-surface-hover: var(--surface-hover);
-  --color-border: var(--border);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-dim: var(--accent-dim);
-  --color-danger: var(--danger);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: hsl(var(--heroui-background));
+  color: hsl(var(--heroui-foreground));
 }
 
 /* Scrollbar styling */
@@ -43,26 +19,26 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--surface);
+  background: hsl(var(--heroui-content1));
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: hsl(var(--heroui-default-200));
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
+  background: hsl(var(--heroui-default-400));
 }
 
 /* Teaching content styles */
 .teaching-content {
-  color: var(--foreground);
+  color: hsl(var(--heroui-foreground));
 }
 .teaching-content a {
-  color: var(--accent);
+  color: hsl(var(--heroui-primary));
   text-decoration: underline;
 }
 .teaching-content a:hover {
-  color: var(--accent-hover);
+  opacity: 0.8;
 }
 .teaching-content img {
   max-width: 100%;
@@ -111,21 +87,21 @@ body {
   color: #fff;
 }
 .teaching-content blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid hsl(var(--heroui-primary));
   padding: 0.5rem 1rem;
   margin: 1rem 0;
-  background: var(--surface-hover);
+  background: hsl(var(--heroui-content2));
   border-radius: 0 6px 6px 0;
 }
 .teaching-content code {
-  background: var(--surface-hover);
+  background: hsl(var(--heroui-content2));
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: 0.875em;
 }
 .teaching-content pre {
-  background: var(--surface-hover);
+  background: hsl(var(--heroui-content2));
   padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
@@ -137,7 +113,7 @@ body {
 }
 .teaching-content hr {
   border: none;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid hsl(var(--heroui-default-200));
   margin: 1.5rem 0;
 }
 .teaching-content table {
@@ -147,24 +123,11 @@ body {
 }
 .teaching-content th,
 .teaching-content td {
-  border: 1px solid var(--border);
+  border: 1px solid hsl(var(--heroui-default-200));
   padding: 0.5rem;
   text-align: left;
 }
 .teaching-content th {
-  background: var(--surface);
+  background: hsl(var(--heroui-content1));
   color: #fff;
-}
-
-/* Accordion animation */
-.accordion-content {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.25s ease;
-}
-.accordion-content[data-open="true"] {
-  grid-template-rows: 1fr;
-}
-.accordion-inner {
-  overflow: hidden;
 }
