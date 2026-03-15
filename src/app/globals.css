@@ -1,26 +1,97 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0f;
+  --surface: #12121a;
+  --surface-hover: #1a1a28;
+  --border: #2a2a3a;
+  --foreground: #e4e4ef;
+  --muted: #8888a0;
+  --accent: #00aeef;
+  --accent-hover: #33c1f5;
+  --accent-dim: #00aeef20;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #eab308;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-dim: var(--accent-dim);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Teaching content styles */
+.teaching-content a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.teaching-content a:hover {
+  color: var(--accent-hover);
+}
+.teaching-content img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+.teaching-content p {
+  margin: 0.5rem 0;
+  line-height: 1.7;
+}
+.teaching-content ul,
+.teaching-content ol {
+  margin: 0.5rem 0 0.5rem 1.5rem;
+}
+.teaching-content li {
+  margin: 0.25rem 0;
+}
+.teaching-content strong {
+  color: #fff;
+}
+.teaching-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.teaching-content th,
+.teaching-content td {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  text-align: left;
+}
+.teaching-content th {
+  background: var(--surface);
+  color: #fff;
 }
