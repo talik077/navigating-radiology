@@ -232,7 +232,7 @@ export default async function CourseSlugPage({
                     key={c.caseId}
                     className="border-b border-border last:border-0 transition-colors hover:bg-surface-hover"
                   >
-                    <td className="w-24 px-4 py-3 text-muted">
+                    <td className="w-28 whitespace-nowrap px-4 py-3 text-muted">
                       <span className="mr-2 text-success">&#9679;</span>
                       Case {c.caseNumber}
                     </td>
