@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useId } from "react";
 import type { StudySummary } from "@/lib/types";
 
 // Cornerstone imports - browser-only
@@ -42,15 +42,18 @@ interface Props {
 export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) {
   const elementRef = useRef<HTMLDivElement>(null);
   const renderingEngineRef = useRef<RenderingEngine | null>(null);
+  const listenerRef = useRef<EventListener | null>(null);
   const [seriesIdx, setSeriesIdx] = useState(0);
   const [currentSlice, setCurrentSlice] = useState(0);
   const [totalSlices, setTotalSlices] = useState(study.series[0]?.sliceCount || 0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const viewportId = "dicomViewport";
-  const renderingEngineId = "dicomRenderingEngine";
-  const toolGroupId = "dicomToolGroup";
+  // Unique IDs per instance to avoid collisions
+  const instanceId = useId();
+  const viewportId = `vp-${instanceId}`;
+  const renderingEngineId = `re-${instanceId}`;
+  const toolGroupId = `tg-${instanceId}`;
 
   const loadSeries = useCallback(
     async (idx: number) => {
@@ -61,7 +64,7 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
       try {
         await initCornerstone();
 
-        // Fetch instance URLs from API (not bundled in page props)
+        // Fetch instance URLs from API
         const resp = await fetch(`/api/series/${courseSlug}/${caseId}/${idx}`);
         if (!resp.ok) throw new Error(`Failed to load series: ${resp.status}`);
         const { urls, window: windowPreset } = await resp.json();
@@ -79,7 +82,16 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
           return;
         }
 
-        // Clean up previous
+        // Clean up previous event listener
+        if (listenerRef.current && elementRef.current) {
+          elementRef.current.removeEventListener(
+            Enums.Events.STACK_NEW_IMAGE,
+            listenerRef.current
+          );
+          listenerRef.current = null;
+        }
+
+        // Clean up previous rendering engine
         if (renderingEngineRef.current) {
           renderingEngineRef.current.destroy();
         }
@@ -131,31 +143,43 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
 
         viewport.render();
 
-        // Track slice changes
-        elementRef.current.addEventListener(
-          Enums.Events.STACK_NEW_IMAGE,
-          ((evt: Types.EventTypes.StackNewImageEvent) => {
-            setCurrentSlice(evt.detail.imageIdIndex);
-          }) as EventListener
-        );
+        // Track slice changes — store ref for cleanup
+        const listener = ((evt: Types.EventTypes.StackNewImageEvent) => {
+          setCurrentSlice(evt.detail.imageIdIndex);
+        }) as EventListener;
+
+        listenerRef.current = listener;
+        elementRef.current.addEventListener(Enums.Events.STACK_NEW_IMAGE, listener);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load viewer");
       } finally {
         setLoading(false);
       }
     },
-    [courseSlug, caseId]
+    [courseSlug, caseId, viewportId, renderingEngineId, toolGroupId]
   );
 
   useEffect(() => {
     loadSeries(seriesIdx);
     return () => {
+      // Clean up event listener
+      if (listenerRef.current && elementRef.current) {
+        elementRef.current.removeEventListener(
+          Enums.Events.STACK_NEW_IMAGE,
+          listenerRef.current
+        );
+        listenerRef.current = null;
+      }
+      // Clean up tool group
+      const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
+      if (toolGroup) ToolGroupManager.destroyToolGroup(toolGroupId);
+      // Clean up rendering engine
       if (renderingEngineRef.current) {
         renderingEngineRef.current.destroy();
         renderingEngineRef.current = null;
       }
     };
-  }, [seriesIdx, loadSeries]);
+  }, [seriesIdx, loadSeries, toolGroupId]);
 
   if (!study.series.length) {
     return (
@@ -164,6 +188,8 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
       </div>
     );
   }
+
+  const activeSeries = study.series[seriesIdx];
 
   return (
     <div className="flex h-full flex-col">
@@ -179,7 +205,7 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
                 : "text-muted hover:bg-surface-hover hover:text-foreground"
             }`}
           >
-            {s.label}
+            {s.label || `Series ${i + 1}`}
           </button>
         ))}
       </div>
@@ -205,12 +231,27 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
           </div>
         )}
 
-        <div className="absolute bottom-3 right-3 rounded bg-black/70 px-2 py-1 text-xs text-white">
-          {currentSlice + 1} / {totalSlices}
-        </div>
+        {/* 4-corner overlay */}
+        <div className="pointer-events-none absolute inset-0">
+          {/* Top-left: study/series description */}
+          <div className="absolute left-3 top-3 rounded bg-black/60 px-2 py-1 text-xs text-white/80">
+            {study.description || activeSeries?.label || ""}
+          </div>
 
-        <div className="absolute bottom-3 left-3 rounded bg-black/70 px-2 py-1 text-xs text-white/60">
-          Scroll: slices | Drag: W/L | Middle: pan | Right: zoom
+          {/* Top-right: modality */}
+          <div className="absolute right-3 top-3 rounded bg-black/60 px-2 py-1 text-xs text-white/80">
+            {activeSeries?.modality || ""}
+          </div>
+
+          {/* Bottom-left: controls hint */}
+          <div className="absolute bottom-3 left-3 rounded bg-black/60 px-2 py-1 text-xs text-white/50">
+            Scroll: slices | Drag: W/L | Middle: pan | Right: zoom
+          </div>
+
+          {/* Bottom-right: slice counter */}
+          <div className="absolute bottom-3 right-3 rounded bg-black/60 px-2 py-1 text-xs text-white">
+            {currentSlice + 1} / {totalSlices}
+          </div>
         </div>
       </div>
     </div>

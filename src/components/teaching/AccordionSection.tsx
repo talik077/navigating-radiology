@@ -17,25 +17,27 @@ export default function AccordionSection({
     <div className="rounded-lg border border-border bg-surface overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between px-6 py-4 text-left font-semibold transition-colors hover:bg-surface-hover"
+        className="flex w-full items-center justify-between px-5 py-3.5 text-left font-semibold transition-colors hover:bg-surface-hover"
       >
-        {name}
+        <span className="text-sm">{name}</span>
         <svg
           width="16"
           height="16"
           viewBox="0 0 16 16"
           fill="none"
-          className={`text-muted transition-transform ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         >
           <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </button>
-      {open && (
-        <div
-          className="teaching-content border-t border-border px-6 py-4 text-sm leading-relaxed text-muted"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      )}
+      <div className="accordion-content" data-open={open}>
+        <div className="accordion-inner">
+          <div
+            className="teaching-content border-t border-border px-5 py-4 text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

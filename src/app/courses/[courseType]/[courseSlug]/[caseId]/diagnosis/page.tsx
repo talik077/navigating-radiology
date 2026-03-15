@@ -8,7 +8,7 @@ import {
 } from "@/lib/data";
 import { notFound } from "next/navigation";
 import DicomViewer from "@/components/viewer/DicomViewer";
-import AccordionSection from "@/components/teaching/AccordionSection";
+import DiagnosisPanel from "./DiagnosisPanel";
 
 export function generateStaticParams() {
   return getAllCaseParams();
@@ -61,7 +61,7 @@ export default async function DiagnosisPage({
         {next && (
           <Link
             href={`${basePath}/${next.caseId}`}
-            className="rounded-lg bg-warning px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-warning/80"
+            className="rounded-lg bg-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
           >
             Next: Case {next.caseNumber}
           </Link>
@@ -70,7 +70,7 @@ export default async function DiagnosisPage({
 
       {/* Main content: viewer left, teaching right */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Viewer - takes ~70% */}
+        {/* Viewer */}
         <div className="flex-1 bg-black">
           <DicomViewer
             study={studySummary}
@@ -80,33 +80,10 @@ export default async function DiagnosisPage({
         </div>
 
         {/* Right panel - teaching content */}
-        <div className="w-96 flex-shrink-0 overflow-y-auto border-l border-border bg-surface">
-          {/* Video embed */}
-          {caseData.videoUrl && (
-            <div className="border-b border-border">
-              <iframe
-                src={caseData.videoUrl}
-                className="aspect-video w-full"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-              />
-            </div>
-          )}
-
-          {/* Teaching sections */}
-          <div className="p-4">
-            <div className="space-y-3">
-              {caseData.teachingSections.map((section, i) => (
-                <AccordionSection
-                  key={i}
-                  name={section.name}
-                  html={section.html}
-                  defaultOpen={i === 0}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+        <DiagnosisPanel
+          videoUrl={caseData.videoUrl}
+          teachingSections={caseData.teachingSections}
+        />
       </div>
     </div>
   );

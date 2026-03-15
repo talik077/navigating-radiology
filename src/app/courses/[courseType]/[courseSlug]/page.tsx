@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCourseData, getAllCourseSlugs } from "@/lib/data";
 import { notFound } from "next/navigation";
 
@@ -34,6 +35,15 @@ function DifficultyBadge({ difficulty }: { difficulty?: string }) {
     >
       {difficulty}
     </span>
+  );
+}
+
+function StatCard({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
+      <span className="shrink-0 text-accent">{icon}</span>
+      <span className="text-sm text-muted">{text}</span>
+    </div>
   );
 }
 
@@ -90,9 +100,19 @@ export default async function CourseSlugPage({
       </div>
 
       {/* Hero section */}
-      <div className="mb-8 rounded-xl border border-border bg-surface p-6">
+      <div className="mb-8 overflow-hidden rounded-xl border border-border bg-surface">
         <div className="flex flex-col gap-6 md:flex-row">
-          <div className="flex-1">
+          {/* Thumbnail */}
+          <div className="relative h-48 w-full overflow-hidden md:h-auto md:w-72">
+            <Image
+              src={`/images/courses/${courseSlug}.png`}
+              alt={course.courseName}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 288px"
+            />
+          </div>
+          <div className="flex-1 p-6">
             <h2 className="mb-3 text-xl font-bold">{course.courseName}</h2>
             <p className="mb-4 text-sm leading-relaxed text-muted">
               {course.description}
@@ -101,7 +121,7 @@ export default async function CourseSlugPage({
               <div className="mb-4">
                 <strong className="text-sm">Sections:</strong>
                 <div className="mt-1 flex flex-wrap gap-2">
-                  {sections.map((s, i) => (
+                  {[...new Set(sections)].map((s, i) => (
                     <span
                       key={i}
                       className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent"
@@ -142,26 +162,45 @@ export default async function CourseSlugPage({
 
       {/* Stats row */}
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
-          <span className="text-2xl">&#127909;</span>
-          <span className="text-sm text-muted">Introductory Video</span>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
-          <span className="text-2xl">&#128196;</span>
-          <span className="text-sm text-muted">
-            {course.caseCount} Cases Available
-          </span>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
-          <span className="text-2xl">&#128218;</span>
-          <span className="text-sm text-muted">
-            Expert Walkthroughs and Learning Material
-          </span>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
-          <span className="text-2xl">&#127916;</span>
-          <span className="text-sm text-muted">Video Driven Mode</span>
-        </div>
+        <StatCard
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <polygon points="23 7 16 12 23 17 23 7" />
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+            </svg>
+          }
+          text="Introductory Video"
+        />
+        <StatCard
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          }
+          text={`${course.caseCount} Cases Available`}
+        />
+        <StatCard
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+            </svg>
+          }
+          text="Expert Walkthroughs"
+        />
+        <StatCard
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="12" cy="12" r="10" />
+              <polygon points="10 8 16 12 10 16 10 8" />
+            </svg>
+          }
+          text="Video Driven Mode"
+        />
       </div>
 
       {/* Cases heading */}
@@ -174,18 +213,26 @@ export default async function CourseSlugPage({
       {/* Case table grouped by sections */}
       {sectionGroups.map((group, gi) => (
         <div key={gi} className="mb-6">
-          <h4 className="mb-3 text-sm font-semibold text-muted">
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted">
+            <span className="h-4 w-1 rounded-full bg-accent" />
             {group.name}
           </h4>
           <div className="overflow-hidden rounded-lg border border-border">
             <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-surface-hover text-xs text-muted">
+                  <th className="w-24 px-4 py-2 text-left font-medium">Case #</th>
+                  <th className="px-4 py-2 text-left font-medium">Clinical History</th>
+                  <th className="w-32 px-4 py-2 text-right font-medium">Difficulty</th>
+                </tr>
+              </thead>
               <tbody>
                 {group.cases.map((c) => (
                   <tr
                     key={c.caseId}
                     className="border-b border-border last:border-0 transition-colors hover:bg-surface-hover"
                   >
-                    <td className="w-20 px-4 py-3 text-muted">
+                    <td className="w-24 px-4 py-3 text-muted">
                       <span className="mr-2 text-success">&#9679;</span>
                       Case {c.caseNumber}
                     </td>

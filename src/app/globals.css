@@ -54,6 +54,9 @@ body {
 }
 
 /* Teaching content styles */
+.teaching-content {
+  color: var(--foreground);
+}
 .teaching-content a {
   color: var(--accent);
   text-decoration: underline;
@@ -76,9 +79,66 @@ body {
 }
 .teaching-content li {
   margin: 0.25rem 0;
+  line-height: 1.6;
 }
 .teaching-content strong {
   color: #fff;
+}
+.teaching-content h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+  color: #fff;
+}
+.teaching-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: #fff;
+}
+.teaching-content h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+  color: #fff;
+}
+.teaching-content h4,
+.teaching-content h5,
+.teaching-content h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+  color: #fff;
+}
+.teaching-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  background: var(--surface-hover);
+  border-radius: 0 6px 6px 0;
+}
+.teaching-content code {
+  background: var(--surface-hover);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+.teaching-content pre {
+  background: var(--surface-hover);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.teaching-content pre code {
+  background: none;
+  padding: 0;
+}
+.teaching-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
 }
 .teaching-content table {
   width: 100%;
@@ -94,4 +154,17 @@ body {
 .teaching-content th {
   background: var(--surface);
   color: #fff;
+}
+
+/* Accordion animation */
+.accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+.accordion-content[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.accordion-inner {
+  overflow: hidden;
 }

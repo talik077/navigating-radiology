@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCourseIndex } from "@/lib/data";
 import { notFound } from "next/navigation";
 
@@ -43,19 +44,32 @@ export default async function CourseTypePage({
             <Link
               key={course.courseSlug}
               href={`/courses/${courseType}/${course.courseSlug}`}
-              className="group rounded-lg border border-border bg-surface p-5 transition-all hover:border-accent/50 hover:bg-surface-hover"
+              className="group overflow-hidden rounded-xl border border-border bg-surface transition-all hover:border-accent/50 hover:bg-surface-hover"
             >
-              <h3 className="mb-2 font-semibold group-hover:text-accent">
-                {course.courseName}
-              </h3>
-              <p className="mb-3 text-xs leading-relaxed text-muted line-clamp-2">
-                {course.description}
-              </p>
-              <div className="flex items-center justify-between text-xs text-muted">
-                <span>{course.caseCount} cases</span>
-                <span className="text-accent opacity-0 transition-opacity group-hover:opacity-100">
-                  View &rarr;
-                </span>
+              {/* Thumbnail */}
+              <div className="relative h-36 overflow-hidden bg-background">
+                <Image
+                  src={`/images/courses/${course.courseSlug}.png`}
+                  alt={course.courseName}
+                  fill
+                  className="object-cover opacity-80 transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
+              </div>
+              <div className="p-4">
+                <h3 className="mb-1.5 font-semibold group-hover:text-accent">
+                  {course.courseName}
+                </h3>
+                <p className="mb-3 text-xs leading-relaxed text-muted line-clamp-2">
+                  {course.description}
+                </p>
+                <div className="flex items-center justify-between text-xs text-muted">
+                  <span>{course.caseCount} cases</span>
+                  <span className="text-accent opacity-0 transition-opacity group-hover:opacity-100">
+                    View &rarr;
+                  </span>
+                </div>
               </div>
             </Link>
           ))}

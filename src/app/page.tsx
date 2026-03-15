@@ -1,5 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCourseIndex } from "@/lib/data";
+
+const heroImages: Record<string, string> = {
+  "on-call-preparation": "/images/on-call-hero.png",
+  "mri-based": "/images/mri-hero.png",
+};
 
 export default function Home() {
   const index = getCourseIndex();
@@ -7,20 +13,11 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Welcome banner */}
-      <div className="mb-8 rounded-lg border border-border bg-surface p-6">
-        <p className="mb-1">
-          <strong>Explore Courses:</strong> Explore our curated case-based
-          courses and learning content below, or via the{" "}
-          <strong>Courses</strong> dropdown (top-left).
-        </p>
-      </div>
-
-      {/* Heading */}
-      <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold">Courses</h1>
-        <p className="text-muted">
+      <div className="mb-10 rounded-xl border border-border bg-surface p-8">
+        <h1 className="mb-2 text-3xl font-bold">Welcome to Navigating Radiology</h1>
+        <p className="max-w-2xl text-muted">
           Featuring scrollable cases with expert walkthroughs, AI feedback, and
-          videos that simplify key concepts
+          videos that simplify key concepts. Explore our curated courses below.
         </p>
       </div>
 
@@ -31,35 +28,47 @@ export default function Home() {
             key={ct.slug}
             className="overflow-hidden rounded-xl border border-border bg-surface"
           >
-            {/* Course type header with image placeholder */}
-            <div className="relative h-48 bg-gradient-to-br from-surface-hover to-background">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-6xl opacity-20">
+            {/* Hero image */}
+            <div className="relative h-52 overflow-hidden bg-background">
+              {heroImages[ct.slug] ? (
+                <Image
+                  src={heroImages[ct.slug]}
+                  alt={ct.name}
+                  fill
+                  className="object-cover opacity-80"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-4xl text-muted/20">
                   {ct.slug === "on-call-preparation" ? "CT" : "MRI"}
                 </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
+              <div className="absolute bottom-4 left-6">
+                <h2 className="text-2xl font-bold text-white drop-shadow-lg">{ct.name}</h2>
               </div>
             </div>
 
             {/* Description */}
-            <div className="p-6">
-              <h2 className="mb-3 text-2xl font-bold">{ct.name}</h2>
+            <div className="px-6 pb-4 pt-3">
               <p className="mb-4 text-sm leading-relaxed text-muted">
                 {ct.description}
               </p>
               <Link
                 href={`/courses/${ct.slug}`}
-                className="inline-block rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-success/80"
+                className="inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
               >
-                Get Started
+                View All Courses
               </Link>
             </div>
 
             {/* Quick Access Table */}
-            <div className="border-t border-border p-4">
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">
+            <div className="border-t border-border px-4 py-4">
+              <h3 className="mb-3 px-2 text-xs font-semibold uppercase tracking-wider text-muted">
                 Quick Access
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-0.5">
                 {ct.courses
                   .filter((c) => c.caseCount > 0)
                   .map((course) => (
@@ -69,11 +78,17 @@ export default function Home() {
                       className="flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-surface-hover"
                     >
                       <span className="flex items-center gap-2">
-                        <span className="text-accent">&#9679;</span>
+                        <Image
+                          src={`/images/courses/${course.courseSlug}.png`}
+                          alt=""
+                          width={28}
+                          height={28}
+                          className="rounded object-cover"
+                        />
                         <span>{course.courseName}</span>
                       </span>
-                      <span className="rounded-full bg-surface-hover px-2 py-0.5 text-xs text-muted">
-                        {course.caseCount} Cases
+                      <span className="rounded-full bg-surface-hover px-2.5 py-0.5 text-xs text-muted">
+                        {course.caseCount} cases
                       </span>
                     </Link>
                   ))}

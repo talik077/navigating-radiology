@@ -25,6 +25,7 @@ export interface CourseData {
   caseCount: number;
   sections: string[];
   introUrl?: string;
+  introVideos?: { title: string; youtubeId: string }[];
   cases: CaseData[];
 }
 

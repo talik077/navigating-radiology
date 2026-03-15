@@ -35,9 +35,13 @@ export default async function CaseHistoryPage({
   const caseData = getCaseData(courseSlug, caseId);
   if (!caseData || !course) notFound();
 
-  const { next } = getAdjacentCases(courseSlug, caseId);
+  const { prev, next } = getAdjacentCases(courseSlug, caseId);
   const basePath = `/courses/${courseType}/${courseSlug}`;
   const studySummary = toStudySummary(caseData);
+
+  // Find case index for progress indicator
+  const caseIndex = course.cases.findIndex((c) => c.caseId === caseId);
+  const totalCases = course.cases.length;
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
@@ -51,6 +55,9 @@ export default async function CaseHistoryPage({
             &#9776; Cases
           </Link>
           <h1 className="text-lg font-bold">{course.courseName}</h1>
+          <span className="text-xs text-muted">
+            Case {caseIndex + 1} of {totalCases}
+          </span>
         </div>
       </div>
 
@@ -62,16 +69,16 @@ export default async function CaseHistoryPage({
         </h2>
         <Link
           href={`${basePath}/${caseId}/diagnosis`}
-          className="rounded-lg bg-warning px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-warning/80"
+          className="rounded-lg bg-accent px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
         >
           Next: Case {caseData.caseNumber} Answer
         </Link>
       </div>
 
       {/* Main content: viewer left, clinical history right */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Viewer - takes ~70% */}
-        <div className="flex-1 bg-black">
+      <div className="flex flex-1 overflow-hidden max-md:flex-col">
+        {/* Viewer */}
+        <div className="flex-1 bg-black max-md:min-h-[50vh]">
           <DicomViewer
             study={studySummary}
             courseSlug={courseSlug}
@@ -80,9 +87,9 @@ export default async function CaseHistoryPage({
         </div>
 
         {/* Right panel - clinical history */}
-        <div className="w-80 flex-shrink-0 overflow-y-auto border-l border-border bg-surface p-6">
+        <div className="w-80 flex-shrink-0 overflow-y-auto border-l border-border bg-surface p-6 max-md:w-full max-md:border-l-0 max-md:border-t">
           <h3 className="mb-4 text-lg font-semibold">Clinical History</h3>
-          <p className="leading-relaxed text-muted">
+          <p className="leading-relaxed text-foreground">
             {caseData.clinicalHistory || "No clinical history provided."}
           </p>
 
@@ -104,7 +111,15 @@ export default async function CaseHistoryPage({
           )}
 
           {/* Navigation */}
-          <div className="mt-8 border-t border-border pt-4">
+          <div className="mt-8 space-y-2 border-t border-border pt-4">
+            {prev && (
+              <Link
+                href={`${basePath}/${prev.caseId}`}
+                className="block text-sm text-muted hover:text-accent"
+              >
+                &larr; Prev: Case {prev.caseNumber}
+              </Link>
+            )}
             {next && (
               <Link
                 href={`${basePath}/${next.caseId}`}
@@ -113,6 +128,11 @@ export default async function CaseHistoryPage({
                 Next: Case {next.caseNumber} &rarr;
               </Link>
             )}
+          </div>
+
+          {/* Keyboard shortcut hint */}
+          <div className="mt-6 text-xs text-muted/60">
+            Scroll: navigate slices | Drag: window/level
           </div>
         </div>
       </div>
