@@ -4,8 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 body {
@@ -58,25 +58,25 @@ body {
   line-height: 1.6;
 }
 .teaching-content strong {
-  color: #fff;
+  color: hsl(var(--heroui-foreground));
 }
 .teaching-content h1 {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 1.5rem 0 0.75rem;
-  color: #fff;
+  color: hsl(var(--heroui-foreground));
 }
 .teaching-content h2 {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 1.25rem 0 0.5rem;
-  color: #fff;
+  color: hsl(var(--heroui-foreground));
 }
 .teaching-content h3 {
   font-size: 1.1rem;
   font-weight: 600;
   margin: 1rem 0 0.5rem;
-  color: #fff;
+  color: hsl(var(--heroui-foreground));
 }
 .teaching-content h4,
 .teaching-content h5,
@@ -84,7 +84,7 @@ body {
   font-size: 1rem;
   font-weight: 600;
   margin: 0.75rem 0 0.5rem;
-  color: #fff;
+  color: hsl(var(--heroui-foreground));
 }
 .teaching-content blockquote {
   border-left: 3px solid hsl(var(--heroui-primary));
@@ -129,5 +129,5 @@ body {
 }
 .teaching-content th {
   background: hsl(var(--heroui-content1));
-  color: #fff;
+  color: hsl(var(--heroui-foreground));
 }

@@ -2,6 +2,7 @@
 
 import { Button, Chip, Divider, Link as HeroLink } from "@heroui/react";
 import NextLink from "next/link";
+import { List } from "lucide-react";
 import DicomViewer from "@/components/viewer/DicomViewer";
 import type { CaseData, StudySummary } from "@/lib/types";
 
@@ -45,7 +46,7 @@ export default function CaseContent({
             href={basePath}
             size="sm"
             variant="flat"
-            startContent={<span>☰</span>}
+            startContent={<List size={16} />}
           >
             Cases
           </Button>

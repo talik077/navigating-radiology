@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardBody,
   Chip,
   Divider,
   Link as HeroLink,
+  Switch,
   Table,
   TableHeader,
   TableColumn,
@@ -15,6 +17,7 @@ import {
 } from "@heroui/react";
 import NextLink from "next/link";
 import Image from "next/image";
+import { PlayCircle, FileText, BookOpen, Video } from "lucide-react";
 import type { CourseData } from "@/lib/types";
 
 function DifficultyChip({ difficulty }: { difficulty?: string }) {
@@ -40,6 +43,8 @@ export default function CourseContent({
   courseType: string;
   courseSlug: string;
 }) {
+  const [showDiagnoses, setShowDiagnoses] = useState(false);
+
   const sortedCases = [...course.cases].sort(
     (a, b) => a.caseNumber - b.caseNumber
   );
@@ -49,16 +54,20 @@ export default function CourseContent({
   const sectionGroups: SectionGroup[] = [];
 
   if (sections.length > 0) {
-    const casesPerSection = Math.ceil(sortedCases.length / sections.length);
-    let caseIdx = 0;
+    // Group cases by their sectionIndex (assigned by build-data from section-boundaries.json)
     for (let i = 0; i < sections.length; i++) {
-      const isLast = i === sections.length - 1;
-      const count = isLast ? sortedCases.length - caseIdx : casesPerSection;
-      sectionGroups.push({
-        name: sections[i],
-        cases: sortedCases.slice(caseIdx, caseIdx + count),
-      });
-      caseIdx += count;
+      const sectionCases = sortedCases.filter(
+        (c) => c.sectionIndex === i
+      );
+      if (sectionCases.length > 0) {
+        sectionGroups.push({ name: sections[i], cases: sectionCases });
+      }
+    }
+    // Any cases without a matching sectionIndex go into a fallback group
+    const assignedIds = new Set(sectionGroups.flatMap((g) => g.cases.map((c) => c.caseId)));
+    const unassigned = sortedCases.filter((c) => !assignedIds.has(c.caseId));
+    if (unassigned.length > 0 && sectionGroups.length === 0) {
+      sectionGroups.push({ name: "Cases", cases: unassigned });
     }
   } else {
     sectionGroups.push({ name: "Cases", cases: sortedCases });
@@ -100,11 +109,17 @@ export default function CourseContent({
               <div>
                 <strong className="text-sm">Sections:</strong>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {[...new Set(sections)].filter((s) => !s.toLowerCase().includes("how to work through")).map((s, i) => (
-                    <Chip key={i} size="sm" variant="flat" color="primary">
-                      {s}
-                    </Chip>
-                  ))}
+                  {[...new Set(sections)]
+                    .filter((s) =>
+                      !s.toLowerCase().includes("how to work through") &&
+                      !s.toLowerCase().includes("normal anatomy")
+                    )
+                    .map((s) => s.replace(/^Part\s+\d+:\s*/i, ""))
+                    .map((s, i) => (
+                      <Chip key={i} size="sm" variant="flat" color="primary">
+                        {s}
+                      </Chip>
+                    ))}
                 </div>
               </div>
             )}
@@ -138,22 +153,47 @@ export default function CourseContent({
 
       {/* Stats row */}
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[
-          { icon: "🎬", text: "Introductory Video" },
-          { icon: "📄", text: `${course.caseCount} Cases` },
-          { icon: "📖", text: "Expert Walkthroughs" },
-          { icon: "▶️", text: "Video Driven Mode" },
-        ].map((stat, i) => (
-          <Card key={i}>
-            <CardBody className="flex-row items-center gap-3 py-3">
-              <span className="text-xl">{stat.icon}</span>
-              <span className="text-sm text-default-500">{stat.text}</span>
-            </CardBody>
-          </Card>
-        ))}
+        <Card>
+          <CardBody className="flex-row items-center gap-3 py-3">
+            <PlayCircle size={20} className="shrink-0 text-primary" />
+            <span className="text-sm text-default-500">Introductory Video</span>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody className="flex-row items-center gap-3 py-3">
+            <FileText size={20} className="shrink-0 text-primary" />
+            <span className="text-sm text-default-500">{course.caseCount} Cases Available</span>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody className="flex-row items-center gap-3 py-3">
+            <BookOpen size={20} className="shrink-0 text-primary" />
+            <span className="text-sm text-default-500">Expert Walkthroughs and Learning Material</span>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody className="flex-row items-center gap-3 py-3">
+            <Video size={20} className="shrink-0 text-default-300" />
+            <span className="flex items-center gap-2 text-sm text-default-500">
+              Video Driven Mode
+              <Chip size="sm" variant="flat" color="warning" className="h-5 text-[10px]">
+                Coming Soon
+              </Chip>
+            </span>
+          </CardBody>
+        </Card>
       </div>
 
-      <h3 className="mb-2 text-lg font-semibold">Cases</h3>
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Cases</h3>
+        <Switch
+          size="sm"
+          isSelected={showDiagnoses}
+          onValueChange={setShowDiagnoses}
+        >
+          <span className="text-sm text-default-400">Display Diagnoses</span>
+        </Switch>
+      </div>
       <Divider className="mb-6" />
 
       {/* Case table grouped by sections */}
@@ -195,6 +235,11 @@ export default function CourseContent({
                     >
                       {c.clinicalHistory || c.diagnosisTitle || `Case ${c.caseNumber}`}
                     </HeroLink>
+                    {showDiagnoses && c.diagnosisTitle && (
+                      <p className="mt-0.5 text-xs text-primary/70">
+                        {c.diagnosisTitle.replace(/^Case\s+\d+\s*[-–—]\s*/i, "")}
+                      </p>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <DifficultyChip difficulty={c.difficulty} />

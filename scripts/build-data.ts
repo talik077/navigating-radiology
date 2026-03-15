@@ -35,6 +35,14 @@ const youtubeByCourse: Record<string, { title: string; youtubeId: string }[]> = 
   : {};
 console.log(`Loaded YouTube intros for ${Object.keys(youtubeByCourse).length} courses`);
 
+// Load section boundaries (scraped from original site)
+const sectionBoundariesPath = path.join(CONTENT, "section-boundaries.json");
+const sectionBoundaries: Record<string, { section: string; firstCase: number; lastCase: number }[]> =
+  fs.existsSync(sectionBoundariesPath)
+    ? JSON.parse(fs.readFileSync(sectionBoundariesPath, "utf-8"))
+    : {};
+console.log(`Loaded section boundaries for ${Object.keys(sectionBoundaries).length} courses`);
+
 // Load Vimeo video URLs if extraction file exists
 const vimeoPath = path.join(CONTENT, "vimeo-urls.json");
 const vimeoByCase: Record<string, string> = {};
@@ -130,8 +138,21 @@ for (const course of coursesRaw) {
     })
     .sort((a: any, b: any) => a.caseNumber - b.caseNumber);
 
-  // Deduplicate sections
-  const dedupedSections = [...new Set(course.sections || [])];
+  // Use section boundaries to build proper sections and assign sectionIndex to cases
+  const boundaries = sectionBoundaries[slug] || [];
+  const outputSections = boundaries.map((b) => b.section);
+
+  // Assign sectionIndex to each case based on boundaries
+  for (const c of mergedCases) {
+    const idx = boundaries.findIndex(
+      (b) => c.caseNumber >= b.firstCase && c.caseNumber <= b.lastCase
+    );
+    (c as any).sectionIndex = idx >= 0 ? idx : 0;
+  }
+
+  // Fallback: if no boundaries, use original sections (minus "How to Work Through")
+  const fallbackSections = ([...new Set(course.sections || [])] as string[])
+    .filter((s) => !s.toLowerCase().includes("how to work through"));
 
   // Per-course output
   const courseOutput = {
@@ -140,7 +161,7 @@ for (const course of coursesRaw) {
     courseName: course.courseName,
     description: course.description || "",
     caseCount: mergedCases.length,
-    sections: dedupedSections,
+    sections: outputSections.length > 0 ? outputSections : fallbackSections,
     introUrl: course.introUrl || undefined,
     introVideos: youtubeByCourse[slug] || [],
     cases: mergedCases,
@@ -160,7 +181,7 @@ for (const course of coursesRaw) {
       courseName: course.courseName,
       description: course.description || "",
       caseCount: mergedCases.length,
-      sections: course.sections || [],
+      sections: outputSections.length > 0 ? outputSections : fallbackSections,
       introUrl: course.introUrl || undefined,
     });
   }

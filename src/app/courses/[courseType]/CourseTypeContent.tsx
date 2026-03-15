@@ -10,6 +10,7 @@ import {
 } from "@heroui/react";
 import NextLink from "next/link";
 import Image from "next/image";
+import { PlayCircle, FileText, BookOpen, Video } from "lucide-react";
 
 interface Course {
   courseSlug: string;
@@ -126,7 +127,11 @@ export default function CourseTypeContent({
                     )}
                     {course.sections && course.sections.length > 0 && (() => {
                       const unique = [...new Set(course.sections)]
-                        .filter((s) => !s.toLowerCase().includes("how to work through"));
+                        .filter((s) =>
+                          !s.toLowerCase().includes("how to work through") &&
+                          !s.toLowerCase().includes("normal anatomy")
+                        )
+                        .map((s) => s.replace(/^Part\s+\d+:\s*/i, ""));
                       return unique.length > 0 ? (
                         <div className="mb-3">
                           <strong className="text-sm">Sections:</strong>
@@ -157,17 +162,26 @@ export default function CourseTypeContent({
                 {/* Features list */}
                 <div className="flex w-64 flex-shrink-0 flex-col justify-center border-l border-default-200 p-5 max-md:w-full max-md:border-l-0 max-md:border-t">
                   <ul className="space-y-3 text-sm text-default-400">
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 text-default-500">&#9655;</span>
+                    <li className="flex items-center gap-2.5">
+                      <PlayCircle size={16} className="shrink-0 text-primary" />
                       <span>Intro Video</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 text-default-500">&#128196;</span>
+                    <li className="flex items-center gap-2.5">
+                      <FileText size={16} className="shrink-0 text-primary" />
                       <span>{course.caseCount} Cases Available</span>
                     </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5 text-default-500">&#128214;</span>
+                    <li className="flex items-center gap-2.5">
+                      <BookOpen size={16} className="shrink-0 text-primary" />
                       <span>Walkthroughs of Findings and Learning Materials</span>
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <Video size={16} className="shrink-0 text-default-300" />
+                      <span className="flex items-center gap-2">
+                        Video Driven Mode
+                        <Chip size="sm" variant="flat" color="warning" className="h-5 text-[10px]">
+                          Coming Soon
+                        </Chip>
+                      </span>
                     </li>
                   </ul>
                 </div>

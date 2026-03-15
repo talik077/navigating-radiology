@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Accordion, AccordionItem, Button } from "@heroui/react";
 import type { TeachingSection } from "@/lib/types";
+import { useViewer } from "@/components/viewer/ViewerContext";
 
 export default function DiagnosisPanel({
   videoUrl,
@@ -14,10 +15,43 @@ export default function DiagnosisPanel({
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set(["0"]));
   const allKeys = new Set(teachingSections.map((_, i) => String(i)));
   const allExpanded = selectedKeys.size === teachingSections.length;
+  const viewerCtx = useViewer();
 
   const toggleAll = () => {
     setSelectedKeys(allExpanded ? new Set<string>() : allKeys);
   };
+
+  // Intercept clicks on teaching links (auto-scroll links with ?s=&i=&ww=&wc=&an= params)
+  const handleTeachingClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest("a");
+      if (!anchor) return;
+
+      const href = anchor.getAttribute("href");
+      if (!href || !href.startsWith("?")) return;
+
+      e.preventDefault();
+
+      const params = new URLSearchParams(href.slice(1));
+      const s = params.get("s");
+      const i = params.get("i");
+      const ww = params.get("ww");
+      const wc = params.get("wc");
+      const an = params.get("an");
+
+      if (s == null || i == null || ww == null || wc == null) return;
+
+      viewerCtx?.navigateTo({
+        seriesUID: s,
+        instanceIndex: /^\d+$/.test(i) ? parseInt(i, 10) : i,
+        ww: parseInt(ww, 10),
+        wc: parseInt(wc, 10),
+        annotations: an === "true",
+      });
+    },
+    [viewerCtx]
+  );
 
   return (
     <div className="w-96 flex-shrink-0 overflow-y-auto border-l border-default-200 bg-content1">
@@ -74,6 +108,7 @@ export default function DiagnosisPanel({
             <AccordionItem key={String(i)} title={section.name}>
               <div
                 className="teaching-content text-sm leading-relaxed"
+                onClick={handleTeachingClick}
                 dangerouslySetInnerHTML={{ __html: section.html }}
               />
             </AccordionItem>

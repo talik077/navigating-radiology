@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useId } from "react";
+import {
+  Layers,
+  Move,
+  ZoomIn,
+  Sun,
+  RotateCcw,
+  Maximize,
+} from "lucide-react";
 import type { StudySummary } from "@/lib/types";
+import { useViewer, type NavigateParams } from "./ViewerContext";
 
 // Cornerstone imports - browser-only
 import { RenderingEngine, Enums, type Types, init as coreInit } from "@cornerstonejs/core";
@@ -33,6 +42,8 @@ async function initCornerstone() {
   cornerstoneInitialized = true;
 }
 
+type ActiveTool = "scroll" | "wl" | "pan" | "zoom";
+
 interface Props {
   study: StudySummary;
   courseSlug: string;
@@ -41,19 +52,148 @@ interface Props {
 
 export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) {
   const elementRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const renderingEngineRef = useRef<RenderingEngine | null>(null);
+  const toolGroupRef = useRef<ReturnType<typeof ToolGroupManager.getToolGroup>>(null);
   const listenerRef = useRef<EventListener | null>(null);
   const [seriesIdx, setSeriesIdx] = useState(0);
   const [currentSlice, setCurrentSlice] = useState(0);
   const [totalSlices, setTotalSlices] = useState(study.series[0]?.sliceCount || 0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTool, setActiveTool] = useState<ActiveTool>("wl");
+  const [wwwl, setWwwl] = useState<{ ww: number; wc: number } | null>(null);
+  const viewerCtx = useViewer();
 
   // Unique IDs per instance to avoid collisions
   const instanceId = useId();
   const viewportId = `vp-${instanceId}`;
   const renderingEngineId = `re-${instanceId}`;
   const toolGroupId = `tg-${instanceId}`;
+
+  const switchTool = useCallback(
+    (tool: ActiveTool) => {
+      const toolGroup = toolGroupRef.current;
+      if (!toolGroup) return;
+
+      // Set all tools passive first
+      const toolMap: Record<ActiveTool, string> = {
+        scroll: StackScrollTool.toolName,
+        wl: WindowLevelTool.toolName,
+        pan: PanTool.toolName,
+        zoom: ZoomTool.toolName,
+      };
+
+      for (const [, name] of Object.entries(toolMap)) {
+        toolGroup.setToolPassive(name);
+      }
+
+      // Set the selected tool as primary click
+      toolGroup.setToolActive(toolMap[tool], {
+        bindings: [{ mouseButton: ToolEnums.MouseBindings.Primary }],
+      });
+
+      // Always keep scroll on wheel
+      toolGroup.setToolActive(StackScrollTool.toolName, {
+        bindings: [{ mouseButton: ToolEnums.MouseBindings.Wheel }],
+      });
+
+      setActiveTool(tool);
+    },
+    []
+  );
+
+  const resetViewport = useCallback(() => {
+    const engine = renderingEngineRef.current;
+    if (!engine) return;
+    const viewport = engine.getViewport(viewportId) as Types.IStackViewport;
+    if (!viewport) return;
+    viewport.resetCamera();
+    viewport.resetProperties();
+    viewport.render();
+  }, [viewportId]);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      containerRef.current.requestFullscreen();
+    }
+  }, []);
+
+  // Handle navigation from teaching links
+  const handleNavigate = useCallback(
+    (params: NavigateParams) => {
+      // Resolve series UID to index
+      let targetSeriesIdx = seriesIdx;
+      const sParam = params.seriesUID;
+
+      // Try matching by seriesUID
+      const uidMatch = study.series.findIndex((s) => s.seriesUID === sParam);
+      if (uidMatch >= 0) {
+        targetSeriesIdx = uidMatch;
+      } else if (/^\d+$/.test(sParam)) {
+        // Plain numeric index
+        targetSeriesIdx = parseInt(sParam, 10);
+      } else {
+        // Might be a MongoDB ObjectId — match against end of seriesUID
+        const objIdMatch = study.series.findIndex(
+          (s) => s.seriesUID.endsWith(sParam) || s.seriesUID.includes(sParam)
+        );
+        if (objIdMatch >= 0) targetSeriesIdx = objIdMatch;
+      }
+
+      // Clamp to valid range
+      targetSeriesIdx = Math.max(0, Math.min(targetSeriesIdx, study.series.length - 1));
+
+      // Resolve instance index
+      let sliceIndex = 0;
+      if (typeof params.instanceIndex === "number") {
+        sliceIndex = params.instanceIndex;
+      } else if (/^\d+$/.test(params.instanceIndex)) {
+        sliceIndex = parseInt(params.instanceIndex, 10);
+      }
+      // For non-numeric instance IDs (MongoDB ObjectIds), we'd need instance-level data
+      // which we don't have on the client — fall back to index 0
+
+      // If we need to switch series, update state (triggers loadSeries via useEffect)
+      if (targetSeriesIdx !== seriesIdx) {
+        setSeriesIdx(targetSeriesIdx);
+        // We can't navigate to the slice yet — it'll happen after loadSeries completes
+        // Store pending navigation in a ref
+        pendingNavRef.current = { sliceIndex, ww: params.ww, wc: params.wc };
+        return;
+      }
+
+      // Same series — navigate directly
+      const engine = renderingEngineRef.current;
+      if (!engine) return;
+      const viewport = engine.getViewport(viewportId) as Types.IStackViewport;
+      if (!viewport) return;
+
+      viewport.setImageIdIndex(sliceIndex);
+      viewport.setProperties({
+        voiRange: {
+          lower: params.wc - params.ww / 2,
+          upper: params.wc + params.ww / 2,
+        },
+      });
+      setWwwl({ ww: params.ww, wc: params.wc });
+      viewport.render();
+    },
+    [seriesIdx, study.series, viewportId]
+  );
+
+  // Ref for pending navigation after series switch
+  const pendingNavRef = useRef<{ sliceIndex: number; ww: number; wc: number } | null>(null);
+
+  // Register navigation handler with ViewerContext
+  useEffect(() => {
+    if (!viewerCtx) return;
+    viewerCtx.registerHandler(handleNavigate);
+    return () => viewerCtx.unregisterHandler();
+  }, [viewerCtx, handleNavigate]);
 
   const loadSeries = useCallback(
     async (idx: number) => {
@@ -109,6 +249,7 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
         let toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
         if (toolGroup) ToolGroupManager.destroyToolGroup(toolGroupId);
         toolGroup = ToolGroupManager.createToolGroup(toolGroupId)!;
+        toolGroupRef.current = toolGroup;
         toolGroup.addViewport(viewportId, renderingEngineId);
 
         toolGroup.addTool(WindowLevelTool.toolName);
@@ -116,6 +257,7 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
         toolGroup.addTool(PanTool.toolName);
         toolGroup.addTool(ZoomTool.toolName);
 
+        // Default: scroll on wheel, W/L on left click
         toolGroup.setToolActive(StackScrollTool.toolName, {
           bindings: [{ mouseButton: ToolEnums.MouseBindings.Wheel }],
         });
@@ -129,6 +271,8 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
           bindings: [{ mouseButton: ToolEnums.MouseBindings.Secondary }],
         });
 
+        setActiveTool("wl");
+
         const viewport = renderingEngine.getViewport(viewportId) as Types.IStackViewport;
         await viewport.setStack(imageIds, 0);
 
@@ -139,11 +283,27 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
               upper: windowPreset.wc + windowPreset.ww / 2,
             },
           });
+          setWwwl({ ww: windowPreset.ww, wc: windowPreset.wc });
         }
 
         viewport.render();
 
-        // Track slice changes — store ref for cleanup
+        // Apply pending navigation (from teaching link that triggered a series switch)
+        const pending = pendingNavRef.current;
+        if (pending) {
+          pendingNavRef.current = null;
+          viewport.setImageIdIndex(pending.sliceIndex);
+          viewport.setProperties({
+            voiRange: {
+              lower: pending.wc - pending.ww / 2,
+              upper: pending.wc + pending.ww / 2,
+            },
+          });
+          setWwwl({ ww: pending.ww, wc: pending.wc });
+          viewport.render();
+        }
+
+        // Track slice changes
         const listener = ((evt: Types.EventTypes.StackNewImageEvent) => {
           setCurrentSlice(evt.detail.imageIdIndex);
         }) as EventListener;
@@ -173,6 +333,7 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
       // Clean up tool group
       const toolGroup = ToolGroupManager.getToolGroup(toolGroupId);
       if (toolGroup) ToolGroupManager.destroyToolGroup(toolGroupId);
+      toolGroupRef.current = null;
       // Clean up rendering engine
       if (renderingEngineRef.current) {
         renderingEngineRef.current.destroy();
@@ -183,7 +344,7 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
 
   if (!study.series.length) {
     return (
-      <div className="flex h-full items-center justify-center text-muted">
+      <div className="flex h-full items-center justify-center text-default-400">
         No imaging data available
       </div>
     );
@@ -191,23 +352,70 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
 
   const activeSeries = study.series[seriesIdx];
 
+  const toolButtons: { id: ActiveTool; icon: React.ReactNode; label: string }[] = [
+    { id: "wl", icon: <Sun size={16} />, label: "W/L" },
+    { id: "scroll", icon: <Layers size={16} />, label: "Scroll" },
+    { id: "pan", icon: <Move size={16} />, label: "Pan" },
+    { id: "zoom", icon: <ZoomIn size={16} />, label: "Zoom" },
+  ];
+
   return (
-    <div className="flex h-full flex-col">
-      {/* Series tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b border-border bg-surface p-1">
-        {study.series.map((s, i) => (
+    <div ref={containerRef} className="flex h-full flex-col">
+      {/* Toolbar */}
+      <div className="flex items-center gap-1 border-b border-default-200 bg-content1 px-2 py-1">
+        {toolButtons.map((btn) => (
           <button
-            key={i}
-            onClick={() => setSeriesIdx(i)}
-            className={`whitespace-nowrap rounded-md px-3 py-1.5 text-xs transition-colors ${
-              i === seriesIdx
-                ? "bg-accent text-black font-medium"
-                : "text-muted hover:bg-surface-hover hover:text-foreground"
+            key={btn.id}
+            onClick={() => switchTool(btn.id)}
+            title={btn.label}
+            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs transition-colors ${
+              activeTool === btn.id
+                ? "bg-primary/20 text-primary font-medium"
+                : "text-default-400 hover:bg-default-100 hover:text-default-600"
             }`}
           >
-            {s.label || `Series ${i + 1}`}
+            {btn.icon}
+            <span className="hidden sm:inline">{btn.label}</span>
           </button>
         ))}
+
+        <div className="mx-1 h-4 w-px bg-default-200" />
+
+        <button
+          onClick={resetViewport}
+          title="Reset"
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-default-400 hover:bg-default-100 hover:text-default-600 transition-colors"
+        >
+          <RotateCcw size={16} />
+          <span className="hidden sm:inline">Reset</span>
+        </button>
+
+        <button
+          onClick={toggleFullscreen}
+          title="Fullscreen"
+          className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs text-default-400 hover:bg-default-100 hover:text-default-600 transition-colors"
+        >
+          <Maximize size={16} />
+          <span className="hidden sm:inline">Fullscreen</span>
+        </button>
+
+        {/* Series selector */}
+        {study.series.length > 1 && (
+          <>
+            <div className="mx-1 h-4 w-px bg-default-200" />
+            <select
+              value={seriesIdx}
+              onChange={(e) => setSeriesIdx(Number(e.target.value))}
+              className="max-w-[200px] truncate rounded-md bg-default-100 px-2 py-1.5 text-xs text-default-400 outline-none hover:bg-default-200"
+            >
+              {study.series.map((s, i) => (
+                <option key={i} value={i}>
+                  {s.label || `Series ${i + 1}`}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
       </div>
 
       {/* Viewport */}
@@ -220,8 +428,8 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
 
         {loading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/80">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-            <span className="text-sm text-muted">Loading DICOM...</span>
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-sm text-default-400">Loading DICOM...</span>
           </div>
         )}
 
@@ -238,14 +446,21 @@ export default function CornerstoneViewer({ study, courseSlug, caseId }: Props) 
             {study.description || activeSeries?.label || ""}
           </div>
 
-          {/* Top-right: modality */}
-          <div className="absolute right-3 top-3 rounded bg-black/60 px-2 py-1 text-xs text-white/80">
-            {activeSeries?.modality || ""}
+          {/* Top-right: modality + WW/WL */}
+          <div className="absolute right-3 top-3 flex flex-col items-end gap-1">
+            <div className="rounded bg-black/60 px-2 py-1 text-xs text-white/80">
+              {activeSeries?.modality || ""}
+            </div>
+            {wwwl && (
+              <div className="rounded bg-black/60 px-2 py-1 text-xs text-white/60">
+                WW: {wwwl.ww} WC: {wwwl.wc}
+              </div>
+            )}
           </div>
 
-          {/* Bottom-left: controls hint */}
+          {/* Bottom-left: series label */}
           <div className="absolute bottom-3 left-3 rounded bg-black/60 px-2 py-1 text-xs text-white/50">
-            Scroll: slices | Drag: W/L | Middle: pan | Right: zoom
+            {activeSeries?.label || ""}
           </div>
 
           {/* Bottom-right: slice counter */}

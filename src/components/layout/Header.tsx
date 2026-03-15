@@ -9,32 +9,26 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   Link,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
   Button,
+  Divider,
 } from "@heroui/react";
-import NextImage from "next/image";
 import NextLink from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import { Navigation, ChevronDown } from "lucide-react";
 
-const courseTypes = [
-  {
-    key: "on-call-preparation",
-    name: "On-Call Prep",
-    description: "CT-based emergency radiology",
-  },
-  {
-    key: "mri-based",
-    name: "MRI Based",
-    description: "Comprehensive MRI courses",
-  },
-];
+interface CourseTypeNav {
+  slug: string;
+  name: string;
+  courses: { courseSlug: string; courseName: string; caseCount: number }[];
+}
 
-export default function Header() {
+export default function Header({ courseTypes }: { courseTypes: CourseTypeNav[] }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMegaOpen, setIsMegaOpen] = useState(false);
   const pathname = usePathname();
 
   return (
@@ -54,15 +48,9 @@ export default function Header() {
           className="sm:hidden"
         />
         <NavbarBrand>
-          <NextLink href="/" className="flex items-center gap-2.5">
-            <NextImage
-              src="/images/logo.png"
-              alt="Navigating Radiology"
-              width={28}
-              height={28}
-              className="rounded"
-            />
-            <span className="text-lg font-bold text-primary">
+          <NextLink href="/" className="flex items-center gap-2">
+            <Navigation size={20} className="text-primary" />
+            <span className="text-lg font-bold text-foreground">
               Navigating Radiology
             </span>
           </NextLink>
@@ -70,9 +58,17 @@ export default function Header() {
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="end">
-        <Dropdown>
-          <NavbarItem>
-            <DropdownTrigger>
+        <NavbarItem>
+          <Popover
+            isOpen={isMegaOpen}
+            onOpenChange={setIsMegaOpen}
+            placement="bottom-end"
+            offset={12}
+            classNames={{
+              content: "p-0 bg-content1 border border-default-200",
+            }}
+          >
+            <PopoverTrigger>
               <Button
                 variant="light"
                 className={`text-sm ${
@@ -80,50 +76,89 @@ export default function Header() {
                     ? "text-primary"
                     : "text-default-500"
                 }`}
-                endContent={
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className="mt-0.5">
-                    <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                }
+                endContent={<ChevronDown size={14} className={`transition-transform ${isMegaOpen ? "rotate-180" : ""}`} />}
               >
                 Courses
               </Button>
-            </DropdownTrigger>
-          </NavbarItem>
-          <DropdownMenu
-            aria-label="Course types"
-            itemClasses={{
-              base: "gap-4",
-            }}
-          >
-            {courseTypes.map((ct) => (
-              <DropdownItem
-                key={ct.key}
-                description={ct.description}
-                as={NextLink}
-                href={`/courses/${ct.key}`}
-                className={pathname.includes(ct.key) ? "text-primary" : ""}
-              >
-                {ct.name}
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </Dropdown>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="flex w-[560px] gap-0">
+                {courseTypes.map((ct, idx) => (
+                  <div key={ct.slug} className={`flex-1 ${idx > 0 ? "border-l border-default-200" : ""}`}>
+                    {/* Column header */}
+                    <div className="px-4 py-3">
+                      <Link
+                        as={NextLink}
+                        href={`/courses/${ct.slug}`}
+                        color="foreground"
+                        className="text-sm font-semibold hover:text-primary"
+                        onPress={() => setIsMegaOpen(false)}
+                      >
+                        {ct.name}
+                      </Link>
+                      <p className="mt-0.5 text-xs text-default-400">
+                        {ct.courses.reduce((s, c) => s + c.caseCount, 0)} cases
+                      </p>
+                    </div>
+                    <Divider />
+                    {/* Course list */}
+                    <div className="py-1.5">
+                      {ct.courses
+                        .filter((c) => c.caseCount > 0)
+                        .map((c) => (
+                          <Link
+                            key={c.courseSlug}
+                            as={NextLink}
+                            href={`/courses/${ct.slug}/${c.courseSlug}`}
+                            color="foreground"
+                            className={`flex items-center justify-between px-4 py-1.5 text-sm transition-colors hover:bg-default-100 ${
+                              pathname.includes(c.courseSlug) ? "text-primary" : ""
+                            }`}
+                            onPress={() => setIsMegaOpen(false)}
+                          >
+                            <span>{c.courseName}</span>
+                            <span className="ml-3 text-xs text-default-400">{c.caseCount}</span>
+                          </Link>
+                        ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </NavbarItem>
       </NavbarContent>
 
+      {/* Mobile menu */}
       <NavbarMenu>
         {courseTypes.map((ct) => (
-          <NavbarMenuItem key={ct.key}>
+          <NavbarMenuItem key={ct.slug}>
             <Link
               as={NextLink}
-              href={`/courses/${ct.key}`}
+              href={`/courses/${ct.slug}`}
               onPress={() => setIsMenuOpen(false)}
-              color={pathname.includes(ct.key) ? "primary" : "foreground"}
-              className="w-full"
+              color={pathname.includes(ct.slug) ? "primary" : "foreground"}
+              className="w-full text-lg font-semibold"
               size="lg"
             >
               {ct.name}
             </Link>
+            <div className="ml-4 mt-1 space-y-1">
+              {ct.courses
+                .filter((c) => c.caseCount > 0)
+                .map((c) => (
+                  <Link
+                    key={c.courseSlug}
+                    as={NextLink}
+                    href={`/courses/${ct.slug}/${c.courseSlug}`}
+                    onPress={() => setIsMenuOpen(false)}
+                    color={pathname.includes(c.courseSlug) ? "primary" : "foreground"}
+                    className="block text-sm"
+                  >
+                    {c.courseName}
+                  </Link>
+                ))}
+            </div>
           </NavbarMenuItem>
         ))}
       </NavbarMenu>

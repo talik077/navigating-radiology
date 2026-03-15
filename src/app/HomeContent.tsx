@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Card,
-  CardBody,
   Table,
   TableHeader,
   TableColumn,
@@ -36,20 +34,6 @@ interface CourseType {
 export default function HomeContent({ courseTypes }: { courseTypes: CourseType[] }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      {/* Welcome tips */}
-      <Card className="mb-10">
-        <CardBody className="px-8 py-6">
-          <p className="mb-2">
-            <strong>To Get Started:</strong> Explore our curated case-based
-            courses and learning content below, or via the{" "}
-            <strong>Courses</strong> dropdown (top-right).
-          </p>
-          <p>
-            <strong>Happy Learning!</strong>
-          </p>
-        </CardBody>
-      </Card>
-
       {/* Courses heading */}
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Courses</h1>
@@ -62,9 +46,9 @@ export default function HomeContent({ courseTypes }: { courseTypes: CourseType[]
       {/* Two course type cards */}
       <div className="grid gap-8 lg:grid-cols-2">
         {courseTypes.map((ct) => (
-          <div key={ct.slug} className="flex flex-col gap-0">
+          <div key={ct.slug} className="overflow-hidden border border-default-200">
             {/* Hero image */}
-            <div className="relative h-56 overflow-hidden rounded-t-xl">
+            <div className="relative h-56 overflow-hidden">
               {heroImages[ct.slug] && (
                 <Image
                   src={heroImages[ct.slug]}
@@ -78,35 +62,31 @@ export default function HomeContent({ courseTypes }: { courseTypes: CourseType[]
             </div>
 
             {/* Card body */}
-            <Card className="rounded-t-none">
-              <CardBody className="gap-4 px-6 py-5">
-                <h3 className="text-xl font-bold">{ct.name}</h3>
-                <p className="text-sm leading-relaxed text-default-400">
-                  {ct.description}
-                </p>
-                <div>
-                  <Button
-                    as={NextLink}
-                    href={`/courses/${ct.slug}`}
-                    color="primary"
-                    variant="ghost"
-                    size="sm"
-                  >
-                    Get Started
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
+            <div className="border-b border-default-200 bg-content1 px-6 py-5">
+              <h3 className="mb-2 text-xl font-bold">{ct.name}</h3>
+              <p className="mb-4 text-sm leading-relaxed text-default-400">
+                {ct.description}
+              </p>
+              <Button
+                as={NextLink}
+                href={`/courses/${ct.slug}`}
+                color="primary"
+                variant="ghost"
+                size="sm"
+              >
+                Get Started
+              </Button>
+            </div>
 
             {/* Quick Access table */}
             <Table
               aria-label={`${ct.name} quick access`}
               removeWrapper
               classNames={{
-                base: "rounded-t-none rounded-b-xl border border-t-0 border-default-200 overflow-hidden",
-                th: "bg-content2 text-default-500 text-xs font-medium",
+                base: "overflow-hidden",
+                th: "bg-content2 text-default-500 text-xs font-medium first:rounded-none last:rounded-none",
                 td: "py-2.5",
-                tr: "border-b border-default-100 last:border-0 hover:bg-content2/50 transition-colors",
+                tr: "border-b border-default-100 last:border-0 hover:bg-content2/50 transition-colors !rounded-none",
               }}
             >
               <TableHeader>

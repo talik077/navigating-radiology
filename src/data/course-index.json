@@ -11,10 +11,7 @@
           "courseName": "CT Cervical Spine (Intro)",
           "description": "C-spine interpretation can be high pressure on call. This introductory video covers everything you need to know to read C-spine with confidence. The video includes high-yield cases in video format.",
           "caseCount": 0,
-          "sections": [
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
-          ],
+          "sections": [],
           "introUrl": "https://app.navigatingradiology.com/course-types/on-call-preparation/courses/cervical-spine/introduction/94356"
         },
         {
@@ -28,9 +25,7 @@
             "Part 1: Upper Abdominal Pain",
             "Part 2: Lower Abdo/Flank Pain",
             "Part 3: Bowel Pathology",
-            "Part 4: Misc More Challenging Cases",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 4: Misc More Challenging Cases"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/on-call-preparation/courses/ct-abdomenpelvis/introduction/20564"
         },
@@ -46,9 +41,7 @@
             "Part 2: Patterns of Lung Disease - identify patterns and give a ddx",
             "Part 3: Abnormal CXR, characterize further.",
             "Part 4: Diffuse Lung Disease?",
-            "Part 5: Misc more challenging Cases.",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 5: Misc more challenging Cases."
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/on-call-preparation/courses/ct-chest-and-ctpa/introduction/44404"
         },
@@ -62,9 +55,7 @@
             "Part 1: r/o stroke",
             "Part 2: H/A, r/o hemorrhage, no trauma",
             "Part 3: Headache +/- fever",
-            "Part 4: Trauma, Postop",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 4: Trauma, Postop"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/on-call-preparation/courses/ct-head-cta-neuro/introduction/50596"
         },
@@ -76,9 +67,7 @@
           "caseCount": 19,
           "sections": [
             "Part 1: CT Chest - Traumatic Injury?",
-            "Part 2: CT Abdo - Traumatic Injury?",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 2: CT Abdo - Traumatic Injury?"
           ]
         },
         {
@@ -90,9 +79,7 @@
           "sections": [
             "Part 1: Abdominal Pain",
             "Part 2: Pelvic Pain",
-            "Part 3: Post Transplant",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 3: Post Transplant"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/on-call-preparation/courses/abdo-ultrasound/introduction/00389"
         },
@@ -104,9 +91,7 @@
           "caseCount": 24,
           "sections": [
             "Normal Surgical Anatomy: What Procedure Was Done?",
-            "Post-op, r/o complication",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Post-op, r/o complication"
           ]
         },
         {
@@ -117,9 +102,7 @@
           "caseCount": 11,
           "sections": [
             "Pain and fever",
-            "Other Cases",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Other Cases"
           ]
         },
         {
@@ -129,9 +112,7 @@
           "description": "Intro video teaches the basics of abdominal xray. Abdominal Xray has limited utility. But, there are still important uses, and diagnoses that you need to make on them. We introduce some concepts in the video. Cases that include the most important things you need to know on abdominal plain film are included in this course!",
           "caseCount": 21,
           "sections": [
-            "Abdominal Xray Worklist",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Abdominal Xray Worklist"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/on-call-preparation/courses/abdo-xray/introduction/94743"
         },
@@ -142,9 +123,7 @@
           "description": "This course introduces a search pattern, basic patterns of disease, and includes >110 essential real-world Chest Xray cases that cover the most important things you need to know. This includes the common and rare but important pathologies, hand picked to teach you concepts. Cases are a single worklist to avoid giving away where to look based on 'section'. I suggest working through these cases in order.",
           "caseCount": 113,
           "sections": [
-            "Chest Xray Worklist",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Chest Xray Worklist"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/on-call-preparation/courses/chest-xray/introduction/02429"
         }
@@ -165,9 +144,7 @@
             "Part 1: Characterize the Solid Liver Lesions",
             "Part 2: Characterize the Cystic Lesions",
             "Part 3: Characterize the Background Liver",
-            "Part 4: Misc More Challenging Cases",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 4: Misc More Challenging Cases"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/liver-mri/introduction/99330"
         },
@@ -181,9 +158,7 @@
             "Part 1: Biliary Obstruction?",
             "Part 2: Characterize Gallbladder",
             "Part 3: Cholangitis?",
-            "Part 4: Post Op",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 4: Post Op"
           ]
         },
         {
@@ -195,9 +170,7 @@
           "sections": [
             "Part 1: Characterize the Pancreatic Finding",
             "Part 2: Diffuse Pancreatic Abnormality?",
-            "Part 3: Misc Cases",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 3: Misc Cases"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/pancreas-mri/introduction/00918"
         },
@@ -211,9 +184,7 @@
             "Part 1: Characterize the Adnexal Mass",
             "Part 2: Stage the Tumor",
             "Part 3: Congenital Uterine Anomalies",
-            "Part 4: Misc (more challenging, interesting cases)",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 4: Misc (more challenging, interesting cases)"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/gyne-mri/introduction/73485"
         },
@@ -225,9 +196,7 @@
           "caseCount": 19,
           "sections": [
             "Part 1: Stage (or re-stage) the Malignancy",
-            "Part 2: Characterize the Rectal Mass",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 2: Characterize the Rectal Mass"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/rectal-mri/introduction/60533"
         },
@@ -240,9 +209,7 @@
           "sections": [
             "Part 1: rising PSA, r/o csPrCa",
             "Part 2: Post-prostatectomy, recurrence?",
-            "Part 3: Other Pathologies",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Part 3: Other Pathologies"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/prostate-mri/introduction/86370"
         },
@@ -255,9 +222,7 @@
           "sections": [
             "Solid renal lesion(s)?",
             "Cystic Renal Lesion(s)?",
-            "Misc Other Cases",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Misc Other Cases"
           ]
         },
         {
@@ -267,9 +232,7 @@
           "description": "Curated examples designed to teach you the essentials of adrenal MRI.\nThank you to Dr. Satheesh Krishna, expert GU radiologist, for help with this course.",
           "caseCount": 8,
           "sections": [
-            "Adrenal Nodule, Characterize",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Adrenal Nodule, Characterize"
           ]
         },
         {
@@ -286,9 +249,7 @@
             "Toxic / Metabolic",
             "Tumor?",
             "Seizures",
-            "Vascular and Other",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Vascular and Other"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/brain-mri/introduction/23851"
         },
@@ -301,9 +262,7 @@
           "sections": [
             "Bone & Disc Disease",
             "Intradural Masses: Tumors, Cysts, Structural",
-            "Abnormal Cord Signal?",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Abnormal Cord Signal?"
           ]
         },
         {
@@ -317,9 +276,7 @@
             "Meniscal Tear?",
             "Ligaments and Tendons",
             "Bone and Cartilage",
-            "Misc Important Cases",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Misc Important Cases"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/knee-mri/introduction/16910"
         },
@@ -336,9 +293,7 @@
             "Muscle and Nerve",
             "Joint-Centred Disorders",
             "Post-op",
-            "Other",
-            "How to Work Through Courses:",
-            "How to Work Through Courses:"
+            "Other"
           ],
           "introUrl": "https://app.navigatingradiology.com/course-types/mri-based/courses/shoulder-mri/introduction/18336"
         }
