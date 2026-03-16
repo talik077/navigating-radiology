@@ -18,7 +18,8 @@ import {
 import NextLink from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Navigation, ChevronDown } from "lucide-react";
+import { Navigation, ChevronDown, LogOut } from "lucide-react";
+import { logout } from "@/app/login/actions";
 
 interface CourseTypeNav {
   slug: string;
@@ -26,7 +27,13 @@ interface CourseTypeNav {
   courses: { courseSlug: string; courseName: string; caseCount: number }[];
 }
 
-export default function Header({ courseTypes }: { courseTypes: CourseTypeNav[] }) {
+export default function Header({
+  courseTypes,
+  userEmail,
+}: {
+  courseTypes: CourseTypeNav[];
+  userEmail?: string;
+}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMegaOpen, setIsMegaOpen] = useState(false);
   const pathname = usePathname();
@@ -127,6 +134,21 @@ export default function Header({ courseTypes }: { courseTypes: CourseTypeNav[] }
             </PopoverContent>
           </Popover>
         </NavbarItem>
+        {userEmail && (
+          <NavbarItem>
+            <form action={logout}>
+              <Button
+                type="submit"
+                variant="light"
+                size="sm"
+                className="text-default-500 gap-1.5"
+                startContent={<LogOut size={14} />}
+              >
+                <span className="hidden md:inline max-w-[120px] truncate">{userEmail}</span>
+              </Button>
+            </form>
+          </NavbarItem>
+        )}
       </NavbarContent>
 
       {/* Mobile menu */}
@@ -161,6 +183,25 @@ export default function Header({ courseTypes }: { courseTypes: CourseTypeNav[] }
             </div>
           </NavbarMenuItem>
         ))}
+        {userEmail && (
+          <NavbarMenuItem>
+            <Divider className="my-2" />
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-default-500 truncate">{userEmail}</span>
+              <form action={logout}>
+                <Button
+                  type="submit"
+                  variant="light"
+                  size="sm"
+                  startContent={<LogOut size={14} />}
+                  onPress={() => setIsMenuOpen(false)}
+                >
+                  Sign Out
+                </Button>
+              </form>
+            </div>
+          </NavbarMenuItem>
+        )}
       </NavbarMenu>
     </Navbar>
   );

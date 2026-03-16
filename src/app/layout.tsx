@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { getCourseIndex } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,16 +35,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased min-h-screen flex flex-col`}>
         <Providers>
-          <Header courseTypes={getCourseIndex().courseTypes.map((ct) => ({
+          <Header userEmail={user?.email ?? undefined} courseTypes={getCourseIndex().courseTypes.map((ct) => ({
             slug: ct.slug,
             name: ct.name,
             courses: ct.courses.map((c) => ({
