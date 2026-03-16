@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Player from "@vimeo/player";
 
 interface VimeoPlayerProps {
   url: string;
@@ -29,39 +30,21 @@ export default function VimeoPlayer({ url, autoplay = true, onEnded }: VimeoPlay
     return `${url}${sep}${params}`;
   })();
 
-  // Modern Vimeo Player SDK postMessage API
   useEffect(() => {
     const iframe = videoRef.current;
     if (!iframe) return;
 
-    const postToVimeo = (method: string, value?: string | number) => {
-      const msg: Record<string, string | number> = { method };
-      if (value !== undefined) msg.value = value;
-      iframe.contentWindow?.postMessage(JSON.stringify(msg), "https://player.vimeo.com");
+    const player = new Player(iframe);
+
+    player.on("ended", () => {
+      player.setCurrentTime(0);
+      player.pause();
+      onEndedRef.current?.();
+    });
+
+    return () => {
+      player.off("ended");
     };
-
-    const handleMessage = (e: MessageEvent) => {
-      if (e.origin !== "https://player.vimeo.com") return;
-
-      let data = e.data;
-      if (typeof data === "string") {
-        try { data = JSON.parse(data); } catch { return; }
-      }
-
-      if (data?.event === "ready") {
-        postToVimeo("addEventListener", "ended");
-      }
-
-      // When video ends, seek to start and pause to prevent end-screen popup
-      if (data?.event === "ended") {
-        postToVimeo("setCurrentTime", 0);
-        postToVimeo("pause");
-        onEndedRef.current?.();
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   return (

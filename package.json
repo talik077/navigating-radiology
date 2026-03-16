@@ -16,6 +16,7 @@
     "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.1",
     "@vercel/analytics": "^2.0.1",
+    "@vimeo/player": "^2.30.3",
     "dicom-parser": "^1.8.21",
     "dompurify": "^3.3.3",
     "framer-motion": "^12.36.0",
