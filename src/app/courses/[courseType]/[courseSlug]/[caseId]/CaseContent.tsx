@@ -2,7 +2,8 @@
 
 import { Button, Chip, Divider, Link as HeroLink } from "@heroui/react";
 import NextLink from "next/link";
-import { List } from "lucide-react";
+import { useState } from "react";
+import { List, Play, ChevronUp } from "lucide-react";
 import DicomViewer from "@/components/viewer/DicomViewer";
 import type { CaseData, StudySummary } from "@/lib/types";
 
@@ -35,6 +36,7 @@ export default function CaseContent({
   prev,
   next,
 }: Props) {
+  const [videoOpen, setVideoOpen] = useState(false);
   const basePath = `/courses/${courseType}/${courseSlug}`;
 
   return (
@@ -75,12 +77,33 @@ export default function CaseContent({
         <div className="flex flex-1 flex-col bg-black max-md:min-h-[50vh]">
           {caseData.historyVideoUrl && (
             <div className="w-full flex-shrink-0 border-b border-default-200">
-              <iframe
-                src={caseData.historyVideoUrl}
-                className="h-[220px] w-full"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowFullScreen
-              />
+              {videoOpen ? (
+                <>
+                  <div className="relative">
+                    <iframe
+                      src={caseData.historyVideoUrl}
+                      className="aspect-video w-full"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  <button
+                    onClick={() => setVideoOpen(false)}
+                    className="flex w-full items-center justify-center gap-1.5 bg-default-100 py-1 text-xs text-default-500 transition-colors hover:bg-default-200"
+                  >
+                    <ChevronUp size={12} />
+                    Hide Video
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setVideoOpen(true)}
+                  className="flex w-full items-center justify-center gap-2 bg-default-100 py-2 text-sm text-default-500 transition-colors hover:bg-default-200"
+                >
+                  <Play size={14} />
+                  Watch Case Presentation
+                </button>
+              )}
             </div>
           )}
           <div className="flex-1">
