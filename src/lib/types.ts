@@ -37,7 +37,7 @@ export interface CaseData {
   difficulty?: string;
   study: StudyData;
   teachingSections: TeachingSection[];
-  videoUrl?: string;
+  diagnosisVideoUrl?: string;
   historyVideoUrl?: string;
   sectionIndex?: number;
 }

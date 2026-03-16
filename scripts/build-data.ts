@@ -145,7 +145,7 @@ for (const course of coursesRaw) {
           series,
         },
         teachingSections: c.teachingSections || [],
-        videoUrl: vimeoByCase[`${slug}_${c.caseId}`] || c.videoUrl || undefined,
+        diagnosisVideoUrl: vimeoByCase[`${slug}_${c.caseId}`] || c.videoUrl || undefined,
         historyVideoUrl: vimeoHistoryByCase[`${slug}_${c.caseId}`] || undefined,
       };
     })

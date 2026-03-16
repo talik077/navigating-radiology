@@ -66,7 +66,7 @@ export default function DiagnosisContent({
             <DicomViewer study={studySummary} courseSlug={courseSlug} caseId={caseId} />
           </div>
           <DiagnosisPanel
-            videoUrl={caseData.videoUrl}
+            diagnosisVideoUrl={caseData.diagnosisVideoUrl}
             teachingSections={caseData.teachingSections}
           />
         </div>

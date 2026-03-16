@@ -7,10 +7,10 @@ import type { TeachingSection } from "@/lib/types";
 import { useViewer } from "@/components/viewer/ViewerContext";
 
 export default function DiagnosisPanel({
-  videoUrl,
+  diagnosisVideoUrl,
   teachingSections,
 }: {
-  videoUrl?: string;
+  diagnosisVideoUrl?: string;
   teachingSections: TeachingSection[];
 }) {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set(["0"]));
@@ -69,10 +69,10 @@ export default function DiagnosisPanel({
   return (
     <div className="w-96 flex-shrink-0 overflow-y-auto border-l border-default-200 bg-content1">
       {/* Video embed */}
-      {videoUrl ? (
+      {diagnosisVideoUrl ? (
         <div className="border-b border-default-200">
           <iframe
-            src={videoUrl}
+            src={diagnosisVideoUrl}
             className="aspect-video w-full"
             allow="autoplay; fullscreen"
             allowFullScreen
