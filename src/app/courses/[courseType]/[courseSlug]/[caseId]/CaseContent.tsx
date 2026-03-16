@@ -73,10 +73,10 @@ export default function CaseContent({
 
       <div className="flex flex-1 overflow-hidden max-md:flex-col">
         <div className="flex flex-1 flex-col bg-black max-md:min-h-[50vh]">
-          {caseData.videoUrl && (
+          {caseData.historyVideoUrl && (
             <div className="w-full border-b border-default-200">
               <iframe
-                src={caseData.videoUrl}
+                src={caseData.historyVideoUrl}
                 className="aspect-video w-full"
                 allow="autoplay; fullscreen; picture-in-picture"
                 allowFullScreen

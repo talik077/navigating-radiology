@@ -38,6 +38,7 @@ export interface CaseData {
   study: StudyData;
   teachingSections: TeachingSection[];
   videoUrl?: string;
+  historyVideoUrl?: string;
   sectionIndex?: number;
 }
 

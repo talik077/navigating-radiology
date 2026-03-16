@@ -55,6 +55,18 @@ if (fs.existsSync(vimeoPath)) {
   console.log(`Loaded ${Object.keys(vimeoByCase).length} Vimeo URLs`);
 }
 
+// Load Vimeo history video URLs if extraction file exists
+const vimeoHistoryPath = path.join(CONTENT, "vimeo-history-urls.json");
+const vimeoHistoryByCase: Record<string, string> = {};
+if (fs.existsSync(vimeoHistoryPath)) {
+  const vimeoHistoryData: { courseSlug: string; caseId: string; historyVideoUrl: string }[] =
+    JSON.parse(fs.readFileSync(vimeoHistoryPath, "utf-8"));
+  for (const v of vimeoHistoryData) {
+    vimeoHistoryByCase[`${v.courseSlug}_${v.caseId}`] = v.historyVideoUrl;
+  }
+  console.log(`Loaded ${Object.keys(vimeoHistoryByCase).length} Vimeo history URLs`);
+}
+
 // Load all case files and index by courseSlug
 const casesDir = path.join(CONTENT, "cases");
 const caseFiles = fs.readdirSync(casesDir).filter((f) => f.endsWith(".json"));
@@ -134,6 +146,7 @@ for (const course of coursesRaw) {
         },
         teachingSections: c.teachingSections || [],
         videoUrl: vimeoByCase[`${slug}_${c.caseId}`] || c.videoUrl || undefined,
+        historyVideoUrl: vimeoHistoryByCase[`${slug}_${c.caseId}`] || undefined,
       };
     })
     .sort((a: any, b: any) => a.caseNumber - b.caseNumber);
