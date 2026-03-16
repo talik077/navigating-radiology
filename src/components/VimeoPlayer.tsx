@@ -15,10 +15,21 @@ export default function VimeoPlayer({ url, autoplay = true, onEnded }: VimeoPlay
 
   const src = (() => {
     const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}${autoplay ? "autoplay=1&" : ""}dnt=1&api=1`;
+    const params = [
+      autoplay && "autoplay=1",
+      "dnt=1",
+      "title=0",
+      "byline=0",
+      "portrait=0",
+      "vimeo_logo=0",
+      "transparent=1",
+      "playsinline=1",
+      "autopause=0",
+    ].filter(Boolean).join("&");
+    return `${url}${sep}${params}`;
   })();
 
-  // Listen for Vimeo 'ready' then subscribe to 'finish' to reset player
+  // Modern Vimeo Player SDK postMessage API
   useEffect(() => {
     const iframe = videoRef.current;
     if (!iframe) return;
@@ -26,11 +37,11 @@ export default function VimeoPlayer({ url, autoplay = true, onEnded }: VimeoPlay
     const postToVimeo = (method: string, value?: string | number) => {
       const msg: Record<string, string | number> = { method };
       if (value !== undefined) msg.value = value;
-      iframe.contentWindow?.postMessage(JSON.stringify(msg), "*");
+      iframe.contentWindow?.postMessage(JSON.stringify(msg), "https://player.vimeo.com");
     };
 
     const handleMessage = (e: MessageEvent) => {
-      if (!e.origin.includes("vimeo.com")) return;
+      if (e.origin !== "https://player.vimeo.com") return;
 
       let data = e.data;
       if (typeof data === "string") {
@@ -38,12 +49,12 @@ export default function VimeoPlayer({ url, autoplay = true, onEnded }: VimeoPlay
       }
 
       if (data?.event === "ready") {
-        postToVimeo("addEventListener", "finish");
+        postToVimeo("addEventListener", "ended");
       }
 
-      // When video ends, seek back to start to avoid Vimeo's end-screen popup
-      if (data?.event === "finish") {
-        postToVimeo("seekTo", 0);
+      // When video ends, seek to start and pause to prevent end-screen popup
+      if (data?.event === "ended") {
+        postToVimeo("setCurrentTime", 0);
         postToVimeo("pause");
         onEndedRef.current?.();
       }
@@ -58,7 +69,7 @@ export default function VimeoPlayer({ url, autoplay = true, onEnded }: VimeoPlay
       ref={videoRef}
       src={src}
       className="aspect-video w-full"
-      allow="autoplay; fullscreen; picture-in-picture"
+      allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
       allowFullScreen
     />
   );

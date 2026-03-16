@@ -42,7 +42,7 @@ export default function Header({
     <Navbar
       isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
-      maxWidth="xl"
+      maxWidth="full"
       isBlurred
       isBordered
       classNames={{
