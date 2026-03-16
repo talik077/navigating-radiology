@@ -81,7 +81,7 @@ export default function CaseContent({
                 <>
                   <div className="relative">
                     <iframe
-                      src={caseData.historyVideoUrl}
+                      src={`${caseData.historyVideoUrl}&autoplay=1&dnt=1`}
                       className="aspect-video w-full"
                       allow="autoplay; fullscreen; picture-in-picture"
                       allowFullScreen

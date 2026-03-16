@@ -72,7 +72,7 @@ export default function DiagnosisPanel({
       {diagnosisVideoUrl ? (
         <div className="border-b border-default-200">
           <iframe
-            src={diagnosisVideoUrl}
+            src={`${diagnosisVideoUrl}&autoplay=1&dnt=1`}
             className="aspect-video w-full"
             allow="autoplay; fullscreen"
             allowFullScreen
