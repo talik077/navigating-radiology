@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { RotateCcw, Maximize, Minimize } from "lucide-react";
 
 interface VimeoPlayerProps {
@@ -14,41 +14,60 @@ export default function VimeoPlayer({ url, autoplay = true, onEnded }: VimeoPlay
   const [isFullscreen, setIsFullscreen] = useState(false);
   const videoRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
 
-  const buildSrc = (extra = "") => {
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}${autoplay ? "autoplay=1&" : ""}dnt=1&api=1${extra}`;
-  };
+  const buildSrc = useCallback(
+    (extra = "") => {
+      const sep = url.includes("?") ? "&" : "?";
+      return `${url}${sep}${autoplay ? "autoplay=1&" : ""}dnt=1&api=1${extra}`;
+    },
+    [url, autoplay],
+  );
 
-  // Listen for Vimeo finish event
+  // Listen for Vimeo postMessage events (ready + finish)
   useEffect(() => {
+    const iframe = videoRef.current;
+    if (!iframe) return;
+
+    const postToVimeo = (method: string, value?: string) => {
+      const msg: Record<string, string> = { method };
+      if (value) msg.value = value;
+      iframe.contentWindow?.postMessage(JSON.stringify(msg), "*");
+    };
+
     const handleMessage = (e: MessageEvent) => {
+      // Only process messages from Vimeo
+      if (!e.origin.includes("vimeo.com")) return;
+
       let data = e.data;
       if (typeof data === "string") {
-        try { data = JSON.parse(data); } catch { return; }
+        try {
+          data = JSON.parse(data);
+        } catch {
+          return;
+        }
       }
+
+      // When player is ready, subscribe to events
+      if (data?.event === "ready") {
+        postToVimeo("addEventListener", "finish");
+        postToVimeo("addEventListener", "pause");
+      }
+
+      // When video finishes, show our overlay instead of Vimeo's end-screen
       if (data?.event === "finish") {
         setVideoEnded(true);
-        onEnded?.();
+        onEndedRef.current?.();
       }
     };
 
-    const onLoad = () => {
-      videoRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ method: "addEventListener", value: "finish" }),
-        "*",
-      );
-    };
-
-    const iframe = videoRef.current;
-    iframe?.addEventListener("load", onLoad);
     window.addEventListener("message", handleMessage);
 
     return () => {
-      iframe?.removeEventListener("load", onLoad);
       window.removeEventListener("message", handleMessage);
     };
-  }, [onEnded]);
+  }, []);
 
   // Track fullscreen changes
   useEffect(() => {
@@ -83,20 +102,20 @@ export default function VimeoPlayer({ url, autoplay = true, onEnded }: VimeoPlay
         allowFullScreen
       />
 
-      {/* Replay overlay */}
+      {/* Replay overlay — covers Vimeo's end-screen popup */}
       {videoEnded && (
         <div
-          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/80"
+          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/90"
           onClick={replay}
         >
           <div className="flex flex-col items-center gap-2 text-default-400 transition-colors hover:text-foreground">
-            <RotateCcw size={24} />
-            <span className="text-xs">Replay</span>
+            <RotateCcw size={28} />
+            <span className="text-sm">Replay</span>
           </div>
         </div>
       )}
 
-      {/* Fullscreen button */}
+      {/* Fullscreen button — visible on hover */}
       <button
         onClick={toggleFullscreen}
         className="absolute right-2 top-2 rounded-md bg-black/60 p-1.5 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100"
