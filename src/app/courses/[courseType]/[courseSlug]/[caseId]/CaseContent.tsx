@@ -2,7 +2,7 @@
 
 import { Button, Chip, Divider, Link as HeroLink } from "@heroui/react";
 import NextLink from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { List, Play, ChevronUp } from "lucide-react";
 import DicomViewer from "@/components/viewer/DicomViewer";
 import type { CaseData, StudySummary } from "@/lib/types";
@@ -37,7 +37,39 @@ export default function CaseContent({
   next,
 }: Props) {
   const [videoOpen, setVideoOpen] = useState(false);
+  const videoRef = useRef<HTMLIFrameElement>(null);
   const basePath = `/courses/${courseType}/${courseSlug}`;
+
+  // Auto-collapse video when Vimeo finishes playing
+  useEffect(() => {
+    if (!videoOpen) return;
+
+    const handleMessage = (e: MessageEvent) => {
+      let data = e.data;
+      if (typeof data === "string") {
+        try { data = JSON.parse(data); } catch { return; }
+      }
+      if (data?.event === "finish") {
+        setVideoOpen(false);
+      }
+    };
+
+    const onLoad = () => {
+      videoRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ method: "addEventListener", value: "finish" }),
+        "*",
+      );
+    };
+
+    const iframe = videoRef.current;
+    iframe?.addEventListener("load", onLoad);
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      iframe?.removeEventListener("load", onLoad);
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [videoOpen]);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -81,7 +113,8 @@ export default function CaseContent({
                 <>
                   <div className="relative">
                     <iframe
-                      src={`${caseData.historyVideoUrl}&autoplay=1&dnt=1`}
+                      ref={videoRef}
+                      src={`${caseData.historyVideoUrl}&autoplay=1&dnt=1&api=1`}
                       className="aspect-video w-full"
                       allow="autoplay; fullscreen; picture-in-picture"
                       allowFullScreen
