@@ -2,9 +2,9 @@
 
 import { Button, Card, CardBody, Chip, Divider, Link as HeroLink } from "@heroui/react";
 import NextLink from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { List, Play, RotateCcw } from "lucide-react";
+import { List } from "lucide-react";
 import DicomViewer from "@/components/viewer/DicomViewer";
+import VimeoPlayer from "@/components/VimeoPlayer";
 import type { CaseData, StudySummary } from "@/lib/types";
 
 interface Props {
@@ -36,40 +36,7 @@ export default function CaseContent({
   prev,
   next,
 }: Props) {
-  const [videoEnded, setVideoEnded] = useState(false);
-  const videoRef = useRef<HTMLIFrameElement>(null);
   const basePath = `/courses/${courseType}/${courseSlug}`;
-
-  // Listen for Vimeo finish event
-  useEffect(() => {
-    if (!caseData.historyVideoUrl) return;
-
-    const handleMessage = (e: MessageEvent) => {
-      let data = e.data;
-      if (typeof data === "string") {
-        try { data = JSON.parse(data); } catch { return; }
-      }
-      if (data?.event === "finish") {
-        setVideoEnded(true);
-      }
-    };
-
-    const onLoad = () => {
-      videoRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ method: "addEventListener", value: "finish" }),
-        "*",
-      );
-    };
-
-    const iframe = videoRef.current;
-    iframe?.addEventListener("load", onLoad);
-    window.addEventListener("message", handleMessage);
-
-    return () => {
-      iframe?.removeEventListener("load", onLoad);
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [caseData.historyVideoUrl]);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -117,32 +84,7 @@ export default function CaseContent({
           {caseData.historyVideoUrl && (
             <Card radius="none" className="border-b border-default-200 bg-content1" shadow="none">
               <CardBody className="p-0">
-                <div className="relative">
-                  <iframe
-                    ref={videoRef}
-                    src={`${caseData.historyVideoUrl}&autoplay=1&dnt=1&api=1`}
-                    className="aspect-video w-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                  />
-                  {videoEnded && (
-                    <div
-                      className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/80"
-                      onClick={() => {
-                        setVideoEnded(false);
-                        videoRef.current?.setAttribute(
-                          "src",
-                          `${caseData.historyVideoUrl}&autoplay=1&dnt=1&api=1&t=${Date.now()}`,
-                        );
-                      }}
-                    >
-                      <div className="flex flex-col items-center gap-2 text-default-400 hover:text-foreground transition-colors">
-                        <RotateCcw size={24} />
-                        <span className="text-xs">Replay</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <VimeoPlayer url={caseData.historyVideoUrl} />
               </CardBody>
             </Card>
           )}

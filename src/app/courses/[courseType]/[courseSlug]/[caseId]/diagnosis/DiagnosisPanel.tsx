@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Accordion, AccordionItem, Button } from "@heroui/react";
 import DOMPurify from "isomorphic-dompurify";
 import type { TeachingSection } from "@/lib/types";
-import { Play } from "lucide-react";
+import VimeoPlayer from "@/components/VimeoPlayer";
 import { useViewer } from "@/components/viewer/ViewerContext";
 
 export default function DiagnosisPanel({
@@ -15,42 +15,9 @@ export default function DiagnosisPanel({
   teachingSections: TeachingSection[];
 }) {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set(["0"]));
-  const [videoEnded, setVideoEnded] = useState(false);
-  const videoRef = useRef<HTMLIFrameElement>(null);
   const allKeys = new Set(teachingSections.map((_, i) => String(i)));
   const allExpanded = selectedKeys.size === teachingSections.length;
   const viewerCtx = useViewer();
-
-  // Listen for Vimeo finish event to hide end-screen popup
-  useEffect(() => {
-    if (!diagnosisVideoUrl) return;
-
-    const handleMessage = (e: MessageEvent) => {
-      let data = e.data;
-      if (typeof data === "string") {
-        try { data = JSON.parse(data); } catch { return; }
-      }
-      if (data?.event === "finish") {
-        setVideoEnded(true);
-      }
-    };
-
-    const onLoad = () => {
-      videoRef.current?.contentWindow?.postMessage(
-        JSON.stringify({ method: "addEventListener", value: "finish" }),
-        "*",
-      );
-    };
-
-    const iframe = videoRef.current;
-    iframe?.addEventListener("load", onLoad);
-    window.addEventListener("message", handleMessage);
-
-    return () => {
-      iframe?.removeEventListener("load", onLoad);
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [diagnosisVideoUrl]);
 
   const sanitizedSections = useMemo(
     () =>
@@ -104,31 +71,8 @@ export default function DiagnosisPanel({
     <div className="w-96 flex-shrink-0 overflow-y-auto border-l border-default-200 bg-content1">
       {/* Video embed */}
       {diagnosisVideoUrl ? (
-        <div className="relative border-b border-default-200">
-          <iframe
-            ref={videoRef}
-            src={`${diagnosisVideoUrl}&autoplay=1&dnt=1&api=1`}
-            className="aspect-video w-full"
-            allow="autoplay; fullscreen"
-            allowFullScreen
-          />
-          {videoEnded && (
-            <div
-              className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/80"
-              onClick={() => {
-                setVideoEnded(false);
-                videoRef.current?.setAttribute(
-                  "src",
-                  `${diagnosisVideoUrl}&autoplay=1&dnt=1&api=1&t=${Date.now()}`,
-                );
-              }}
-            >
-              <div className="flex flex-col items-center gap-2 text-default-400">
-                <Play size={24} />
-                <span className="text-xs">Replay</span>
-              </div>
-            </div>
-          )}
+        <div className="border-b border-default-200">
+          <VimeoPlayer url={diagnosisVideoUrl} />
         </div>
       ) : (
         <div className="flex items-center justify-center border-b border-default-200 bg-content2/50 py-8">
