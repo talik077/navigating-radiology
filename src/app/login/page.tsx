@@ -1,12 +1,15 @@
 "use client";
 
 import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card, CardBody, CardHeader, Input, Button } from "@heroui/react";
 import { Navigation } from "lucide-react";
 import { login } from "./actions";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(login, null);
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get("error");
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
@@ -33,8 +36,8 @@ export default function LoginPage() {
               placeholder="Enter your password"
               isRequired
             />
-            {state?.error && (
-              <p className="text-sm text-danger">{state.error}</p>
+            {(state?.error || urlError) && (
+              <p className="text-sm text-danger">{state?.error || urlError}</p>
             )}
             <Button
               type="submit"
