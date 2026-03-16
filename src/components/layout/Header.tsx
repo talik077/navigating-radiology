@@ -43,9 +43,9 @@ export default function Header({
       isMenuOpen={isMenuOpen}
       onMenuOpenChange={setIsMenuOpen}
       maxWidth="xl"
+      isBlurred
       isBordered
       classNames={{
-        base: "bg-content1/95 backdrop-blur-md",
         wrapper: "px-4",
       }}
     >
