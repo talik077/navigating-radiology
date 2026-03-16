@@ -72,8 +72,20 @@ export default function CaseContent({
       </div>
 
       <div className="flex flex-1 overflow-hidden max-md:flex-col">
-        <div className="flex-1 bg-black max-md:min-h-[50vh]">
-          <DicomViewer study={studySummary} courseSlug={courseSlug} caseId={caseId} />
+        <div className="flex flex-1 flex-col bg-black max-md:min-h-[50vh]">
+          {caseData.videoUrl && (
+            <div className="w-full border-b border-default-200">
+              <iframe
+                src={caseData.videoUrl}
+                className="aspect-video w-full"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
+          <div className="flex-1">
+            <DicomViewer study={studySummary} courseSlug={courseSlug} caseId={caseId} />
+          </div>
         </div>
 
         <div className="w-80 flex-shrink-0 overflow-y-auto border-l border-default-200 bg-content1 p-6 max-md:w-full max-md:border-l-0 max-md:border-t">
