@@ -1,12 +1,13 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import { Button, Checkbox } from "@heroui/react";
 import NextLink from "next/link";
 import { List } from "lucide-react";
 import DicomViewer from "@/components/viewer/DicomViewer";
 import DiagnosisPanel from "./DiagnosisPanel";
 import { ViewerProvider } from "@/components/viewer/ViewerContext";
 import type { CaseData, StudySummary } from "@/lib/types";
+import { useProgress } from "@/lib/hooks/use-progress";
 
 interface Props {
   courseName: string;
@@ -28,6 +29,8 @@ export default function DiagnosisContent({
   next,
 }: Props) {
   const basePath = `/courses/${courseType}/${courseSlug}`;
+  const { progress, markCompleted } = useProgress(courseSlug);
+  const isCompleted = progress[caseId]?.completed ?? false;
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -48,16 +51,26 @@ export default function DiagnosisContent({
 
       <div className="flex items-center justify-between border-b border-default-200 px-4 py-3">
         <h2 className="text-lg font-semibold">{caseData.diagnosisTitle}</h2>
-        {next && (
-          <Button
-            as={NextLink}
-            href={`${basePath}/${next.caseId}`}
-            color="primary"
+        <div className="flex items-center gap-3">
+          <Checkbox
             size="sm"
+            color="success"
+            isSelected={isCompleted}
+            onValueChange={(checked) => markCompleted(caseId, checked)}
           >
-            Next: Case {next.caseNumber}
-          </Button>
-        )}
+            <span className="text-sm text-default-500">Completed</span>
+          </Checkbox>
+          {next && (
+            <Button
+              as={NextLink}
+              href={`${basePath}/${next.caseId}`}
+              color="primary"
+              size="sm"
+            >
+              Next: Case {next.caseNumber}
+            </Button>
+          )}
+        </div>
       </div>
 
       <ViewerProvider study={studySummary}>

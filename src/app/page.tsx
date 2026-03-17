@@ -1,7 +1,7 @@
-import { getCourseIndex } from "@/lib/data";
+import { getCourseIndex } from "@/lib/db/queries";
 import HomeContent from "./HomeContent";
 
-export default function Home() {
-  const index = getCourseIndex();
+export default async function Home() {
+  const index = await getCourseIndex();
   return <HomeContent courseTypes={index.courseTypes} />;
 }

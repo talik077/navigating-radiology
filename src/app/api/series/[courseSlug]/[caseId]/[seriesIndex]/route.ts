@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCaseData } from "@/lib/data";
+import { getSeriesData } from "@/lib/db/queries";
 
 /**
  * Returns instance URLs for a specific series.
@@ -12,23 +12,12 @@ export async function GET(
   const { courseSlug, caseId, seriesIndex } = await params;
   const idx = parseInt(seriesIndex, 10);
 
-  const caseData = getCaseData(courseSlug, caseId);
-  if (!caseData) {
-    return NextResponse.json({ error: "Case not found" }, { status: 404 });
-  }
-
-  const series = caseData.study.series[idx];
-  if (!series) {
+  const data = await getSeriesData(courseSlug, caseId, idx);
+  if (!data) {
     return NextResponse.json({ error: "Series not found" }, { status: 404 });
   }
 
-  return NextResponse.json({
-    urls: series.instances.map((inst) => inst.url),
-    window: series.window || null,
-    annotations: series.instances
-      .map((inst, i) => (inst.annotations ? { index: i, data: inst.annotations } : null))
-      .filter(Boolean),
-  }, {
+  return NextResponse.json(data, {
     headers: {
       "Cache-Control": "public, max-age=3600, s-maxage=86400",
     },

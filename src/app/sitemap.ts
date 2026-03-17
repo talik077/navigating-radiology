@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getCourseIndex, getCourseData } from "@/lib/data";
+import { getCourseIndex, getCourseData } from "@/lib/db/queries";
 
 const BASE_URL = "https://navigatingradiology.com";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const index = getCourseIndex();
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const index = await getCourseIndex();
   const entries: MetadataRoute.Sitemap = [
     { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
   ];
@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.7,
       });
 
-      const course = getCourseData(c.courseSlug);
+      const course = await getCourseData(c.courseSlug);
       if (!course) continue;
 
       for (const cas of course.cases) {

@@ -2,10 +2,11 @@
 
 import { Button, Card, CardBody, Chip, Divider, Link as HeroLink } from "@heroui/react";
 import NextLink from "next/link";
-import { List } from "lucide-react";
+import { List, Bookmark } from "lucide-react";
 import DicomViewer from "@/components/viewer/DicomViewer";
 import VimeoPlayer from "@/components/VimeoPlayer";
 import type { CaseData, StudySummary } from "@/lib/types";
+import { useProgress } from "@/lib/hooks/use-progress";
 
 interface Props {
   course: { courseName: string; totalCases: number };
@@ -37,6 +38,8 @@ export default function CaseContent({
   next,
 }: Props) {
   const basePath = `/courses/${courseType}/${courseSlug}`;
+  const { progress, toggleBookmark } = useProgress(courseSlug);
+  const isBookmarked = progress[caseId]?.bookmarked ?? false;
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
@@ -62,14 +65,25 @@ export default function CaseContent({
         <h2 className="text-lg font-semibold">
           Case {caseData.caseNumber} – {caseData.clinicalHistory || "N/A"}
         </h2>
-        <Button
-          as={NextLink}
-          href={`${basePath}/${caseId}/diagnosis`}
-          color="primary"
-          size="sm"
-        >
-          View Answer →
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="light"
+            isIconOnly
+            onPress={() => toggleBookmark(caseId)}
+            className={isBookmarked ? "text-warning" : "text-default-400"}
+          >
+            <Bookmark size={18} fill={isBookmarked ? "currentColor" : "none"} />
+          </Button>
+          <Button
+            as={NextLink}
+            href={`${basePath}/${caseId}/diagnosis`}
+            color="primary"
+            size="sm"
+          >
+            View Answer →
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden max-md:flex-col">

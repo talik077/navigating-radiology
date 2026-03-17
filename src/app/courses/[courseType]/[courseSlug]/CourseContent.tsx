@@ -17,8 +17,10 @@ import {
 } from "@heroui/react";
 import NextLink from "next/link";
 import Image from "next/image";
-import { PlayCircle, FileText, BookOpen, Video } from "lucide-react";
+import { PlayCircle, FileText, BookOpen, Video, Check, Bookmark, RotateCcw } from "lucide-react";
+import { Button, Progress } from "@heroui/react";
 import type { CourseData } from "@/lib/types";
+import { useProgress } from "@/lib/hooks/use-progress";
 
 function DifficultyChip({ difficulty }: { difficulty?: string }) {
   if (!difficulty) return null;
@@ -44,6 +46,8 @@ export default function CourseContent({
   courseSlug: string;
 }) {
   const [showDiagnoses, setShowDiagnoses] = useState(false);
+  const { progress, clearProgress } = useProgress(courseSlug);
+  const completedCount = Object.values(progress).filter((p) => p.completed).length;
 
   const sortedCases = [...course.cases].sort(
     (a, b) => a.caseNumber - b.caseNumber
@@ -151,6 +155,38 @@ export default function CourseContent({
         </div>
       )}
 
+      {/* Progress bar */}
+      {course.caseCount > 0 && (
+        <Card className="mb-6">
+          <CardBody className="gap-2 py-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-default-500">Progress</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">
+                  {completedCount} / {course.caseCount} completed
+                </span>
+                {completedCount > 0 && (
+                  <Button
+                    size="sm"
+                    variant="light"
+                    className="h-6 min-w-0 px-2 text-xs text-default-400"
+                    startContent={<RotateCcw size={12} />}
+                    onPress={clearProgress}
+                  >
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </div>
+            <Progress
+              value={(completedCount / course.caseCount) * 100}
+              size="sm"
+              color="success"
+            />
+          </CardBody>
+        </Card>
+      )}
+
       {/* Stats row */}
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Card>
@@ -222,8 +258,15 @@ export default function CourseContent({
               {group.cases.map((c) => (
                 <TableRow key={c.caseId}>
                   <TableCell className="whitespace-nowrap text-default-400">
-                    <span className="mr-2 text-success">●</span>
+                    {progress[c.caseId]?.completed ? (
+                      <Check size={14} className="mr-2 inline text-success" />
+                    ) : (
+                      <span className="mr-2 inline-block w-3.5" />
+                    )}
                     Case {c.caseNumber}
+                    {progress[c.caseId]?.bookmarked && (
+                      <Bookmark size={12} className="ml-1.5 inline text-warning" />
+                    )}
                   </TableCell>
                   <TableCell>
                     <HeroLink

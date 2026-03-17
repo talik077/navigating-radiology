@@ -1,4 +1,4 @@
-import { getCourseIndex } from "@/lib/data";
+import { getCourseIndex } from "@/lib/db/queries";
 import { notFound } from "next/navigation";
 import CourseTypeContent from "./CourseTypeContent";
 
@@ -22,7 +22,7 @@ export default async function CourseTypePage({
   params: Promise<{ courseType: string }>;
 }) {
   const { courseType } = await params;
-  const index = getCourseIndex();
+  const index = await getCourseIndex();
   const ct = index.courseTypes.find((t) => t.slug === courseType);
   if (!ct) notFound();
 

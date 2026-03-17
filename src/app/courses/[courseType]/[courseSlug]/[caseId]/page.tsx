@@ -2,15 +2,10 @@ import {
   getCaseData,
   getCourseData,
   getAdjacentCases,
-  getAllCaseParams,
   toStudySummary,
-} from "@/lib/data";
+} from "@/lib/db/queries";
 import { notFound } from "next/navigation";
 import CaseContent from "./CaseContent";
-
-export function generateStaticParams() {
-  return getAllCaseParams();
-}
 
 export async function generateMetadata({
   params,
@@ -18,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ courseType: string; courseSlug: string; caseId: string }>;
 }) {
   const { courseSlug, caseId } = await params;
-  const c = getCaseData(courseSlug, caseId);
+  const c = await getCaseData(courseSlug, caseId);
   return {
     title: `${c?.diagnosisTitle || `Case ${caseId}`} | Navigating Radiology`,
   };
@@ -30,11 +25,13 @@ export default async function CaseHistoryPage({
   params: Promise<{ courseType: string; courseSlug: string; caseId: string }>;
 }) {
   const { courseType, courseSlug, caseId } = await params;
-  const course = getCourseData(courseSlug);
-  const caseData = getCaseData(courseSlug, caseId);
+  const [course, caseData] = await Promise.all([
+    getCourseData(courseSlug),
+    getCaseData(courseSlug, caseId),
+  ]);
   if (!caseData || !course) notFound();
 
-  const { prev, next } = getAdjacentCases(courseSlug, caseId);
+  const { prev, next } = await getAdjacentCases(courseSlug, caseId);
   const studySummary = toStudySummary(caseData);
   const caseIndex = course.cases.findIndex((c) => c.caseId === caseId);
 

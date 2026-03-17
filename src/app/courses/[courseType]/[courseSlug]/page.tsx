@@ -1,13 +1,6 @@
-import { getCourseData, getAllCourseSlugs } from "@/lib/data";
+import { getCourseData } from "@/lib/db/queries";
 import { notFound } from "next/navigation";
 import CourseContent from "./CourseContent";
-
-export function generateStaticParams() {
-  return getAllCourseSlugs().map(({ courseType, courseSlug }) => ({
-    courseType,
-    courseSlug,
-  }));
-}
 
 export async function generateMetadata({
   params,
@@ -15,7 +8,7 @@ export async function generateMetadata({
   params: Promise<{ courseType: string; courseSlug: string }>;
 }) {
   const { courseSlug } = await params;
-  const course = getCourseData(courseSlug);
+  const course = await getCourseData(courseSlug);
   return {
     title: `${course?.courseName || courseSlug} | Navigating Radiology`,
   };
@@ -27,7 +20,7 @@ export default async function CourseSlugPage({
   params: Promise<{ courseType: string; courseSlug: string }>;
 }) {
   const { courseType, courseSlug } = await params;
-  const course = getCourseData(courseSlug);
+  const course = await getCourseData(courseSlug);
   if (!course) notFound();
 
   return <CourseContent course={course} courseType={courseType} courseSlug={courseSlug} />;
