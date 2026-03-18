@@ -9,6 +9,8 @@ import type {
   SeriesData,
   StudySummary,
   TeachingSection,
+  CourseType,
+  DifficultyLevel,
 } from "@/lib/types";
 
 // -------------------------------------------------------------------
@@ -17,7 +19,7 @@ import type {
 
 interface CourseRow {
   course_slug: string;
-  course_type: string;
+  course_type: CourseType;
   course_name: string;
   description: string;
   sections: string[];
@@ -31,7 +33,7 @@ interface CaseRow {
   case_number: number;
   clinical_history: string;
   diagnosis_title: string;
-  difficulty: string | null;
+  difficulty: DifficultyLevel | null;
   section_index: number;
   study_uid: string;
   study_description: string;

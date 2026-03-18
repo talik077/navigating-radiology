@@ -2,12 +2,26 @@
 -- Run this in Supabase SQL Editor to create all tables
 
 -- ============================================================
+-- ENUMS
+-- ============================================================
+
+DO $$ BEGIN
+  CREATE TYPE course_type AS ENUM ('on-call-preparation', 'mri-based');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE difficulty_level AS ENUM ('Bread & Butter', 'Moderate', 'Challenging');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- ============================================================
 -- TABLES
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS courses (
   course_slug TEXT PRIMARY KEY,
-  course_type TEXT NOT NULL,
+  course_type course_type NOT NULL,
   course_name TEXT NOT NULL,
   description TEXT DEFAULT '',
   sections JSONB DEFAULT '[]',
@@ -22,7 +36,7 @@ CREATE TABLE IF NOT EXISTS cases (
   case_number INTEGER NOT NULL,
   clinical_history TEXT DEFAULT '',
   diagnosis_title TEXT DEFAULT '',
-  difficulty TEXT,
+  difficulty difficulty_level,
   section_index INTEGER DEFAULT 0,
   study_uid TEXT NOT NULL,
   study_description TEXT DEFAULT '',
@@ -40,8 +54,8 @@ CREATE TABLE IF NOT EXISTS series (
   label TEXT DEFAULT '',
   modality TEXT DEFAULT 'CT',
   series_uid TEXT NOT NULL,
-  window_wc INTEGER,
-  window_ww INTEGER,
+  window_wc REAL,
+  window_ww REAL,
   slice_count INTEGER NOT NULL,
   instance_urls JSONB NOT NULL,
   annotations JSONB DEFAULT '[]',

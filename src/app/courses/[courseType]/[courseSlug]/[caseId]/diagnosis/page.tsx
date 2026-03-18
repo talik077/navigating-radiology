@@ -15,7 +15,7 @@ export async function generateMetadata({
   const { courseSlug, caseId } = await params;
   const c = await getCaseData(courseSlug, caseId);
   return {
-    title: `${c?.diagnosisTitle || `Case ${caseId}`} - Diagnosis | Navigating Radiology`,
+    title: `${c ? `Case ${c.caseNumber} - ${c.diagnosisTitle}` : `Case ${caseId}`} - Diagnosis | Navigating Radiology`,
   };
 }
 

@@ -1,3 +1,6 @@
+export type CourseType = "on-call-preparation" | "mri-based";
+export type DifficultyLevel = "Bread & Butter" | "Moderate" | "Challenging";
+
 export interface CourseIndex {
   courseTypes: {
     slug: string;
@@ -9,7 +12,7 @@ export interface CourseIndex {
 
 export interface CourseSummary {
   courseSlug: string;
-  courseType: string;
+  courseType: CourseType;
   courseName: string;
   description: string;
   caseCount: number;
@@ -19,7 +22,7 @@ export interface CourseSummary {
 
 export interface CourseData {
   courseSlug: string;
-  courseType: string;
+  courseType: CourseType;
   courseName: string;
   description: string;
   caseCount: number;
@@ -34,7 +37,7 @@ export interface CaseData {
   caseNumber: number;
   clinicalHistory: string;
   diagnosisTitle: string;
-  difficulty?: string;
+  difficulty?: DifficultyLevel;
   study: StudyData;
   teachingSections: TeachingSection[];
   diagnosisVideoUrl?: string;

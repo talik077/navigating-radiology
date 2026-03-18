@@ -58,7 +58,7 @@ export default function DiagnosisPanel({
 
       viewerCtx?.navigateTo({
         seriesUID: s,
-        instanceIndex: /^\d+$/.test(i) ? parseInt(i, 10) : i,
+        instanceIndex: parseInt(i, 10),
         ww: parseInt(ww, 10),
         wc: parseInt(wc, 10),
         annotations: an === "true",

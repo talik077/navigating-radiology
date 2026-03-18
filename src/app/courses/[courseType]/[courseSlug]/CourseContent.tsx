@@ -280,7 +280,7 @@ export default function CourseContent({
                     </HeroLink>
                     {showDiagnoses && c.diagnosisTitle && (
                       <p className="mt-0.5 text-xs text-primary/70">
-                        {c.diagnosisTitle.replace(/^Case\s+\d+\s*[-–—]\s*/i, "")}
+                        {c.diagnosisTitle}
                       </p>
                     )}
                   </TableCell>

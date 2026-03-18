@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { StudySummary } from "@/lib/types";
+import { ViewerErrorBoundary } from "./ViewerErrorBoundary";
 
 const CornerstoneViewer = dynamic(
   () => import("./CornerstoneViewer"),
@@ -25,5 +26,9 @@ interface Props {
 }
 
 export default function DicomViewer({ study, courseSlug, caseId }: Props) {
-  return <CornerstoneViewer study={study} courseSlug={courseSlug} caseId={caseId} />;
+  return (
+    <ViewerErrorBoundary>
+      <CornerstoneViewer study={study} courseSlug={courseSlug} caseId={caseId} />
+    </ViewerErrorBoundary>
+  );
 }

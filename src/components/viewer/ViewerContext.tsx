@@ -5,7 +5,7 @@ import type { StudySummary } from "@/lib/types";
 
 export interface NavigateParams {
   seriesUID: string;
-  instanceIndex: number | string; // numeric index or UID string
+  instanceIndex: number;
   ww: number;
   wc: number;
   annotations: boolean;

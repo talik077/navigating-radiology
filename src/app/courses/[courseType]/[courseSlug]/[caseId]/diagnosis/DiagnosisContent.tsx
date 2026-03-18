@@ -50,7 +50,10 @@ export default function DiagnosisContent({
       </div>
 
       <div className="flex items-center justify-between border-b border-default-200 px-4 py-3">
-        <h2 className="text-lg font-semibold">{caseData.diagnosisTitle}</h2>
+        <h2 className="text-lg font-semibold">
+          Case {caseData.caseNumber} &ndash;{" "}
+          {caseData.diagnosisTitle}
+        </h2>
         <div className="flex items-center gap-3">
           <Checkbox
             size="sm"
