@@ -9,12 +9,12 @@ import {
 /** Annotation style overrides applied per tool group. */
 export const ANNOTATION_STYLES = {
   global: {
-    color: "rgb(0, 255, 255)",
-    colorHighlighted: "rgb(255, 255, 0)",
-    colorSelected: "rgb(0, 255, 0)",
+    color: "rgb(255, 255, 0)",
+    colorHighlighted: "rgb(0, 255, 0)",
+    colorSelected: "rgb(0, 220, 0)",
     textBoxBackground: "rgba(0, 0, 0, 0.6)",
-    textBoxColor: "rgb(0, 255, 255)",
-    textBoxColorHighlighted: "rgb(255, 255, 0)",
+    textBoxColor: "rgb(255, 255, 0)",
+    textBoxColorHighlighted: "rgb(0, 255, 0)",
   },
 };
 
